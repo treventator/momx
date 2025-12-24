@@ -135,13 +135,26 @@ app.use(`${apiPrefix}/admin`, require('./routes/adminRoutes'));
 // Webhook routes
 app.use(`${apiPrefix}/webhooks`, require('./routes/webhookRoutes'));
 
-// Health check endpoint
+// Health check endpoints
+// Root level health check for Docker
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    success: true, 
+    message: 'API is healthy',
+    timestamp: new Date(),
+    environment: process.env.NODE_ENV || 'development',
+    uptime: process.uptime()
+  });
+});
+
+// API level health check
 app.get(`${apiPrefix}/health`, (req, res) => {
   res.status(200).json({ 
     success: true, 
     message: 'API is running',
     timestamp: new Date(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    version: '1.0.0'
   });
 });
 

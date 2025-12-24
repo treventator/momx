@@ -1,23 +1,85 @@
-# Use an official Node runtime as a parent image
-FROM node:18-alpine
+# ===========================================
+# MomX Backend Dockerfile
+# Node.js API Server
+# ===========================================
 
-# Set the working directory in the container
-WORKDIR /app/backend
+# Use Node 20 LTS Alpine for smaller image
+FROM node:20-alpine AS base
 
-# Copy package.json and package-lock.json (if available)
+# Install dependencies for native modules
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+
+# ===========================================
+# Dependencies Stage
+# ===========================================
+FROM base AS deps
+
+# Copy package files
 COPY package*.json ./
 
-# Install app dependencies
-RUN npm install
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
 
-# Bundle app source
+# ===========================================
+# Builder Stage (for development)
+# ===========================================
+FROM base AS builder
+
+COPY package*.json ./
+RUN npm ci
+
 COPY . .
 
-# Make port 4455 available to the world outside this container
+# ===========================================
+# Production Stage
+# ===========================================
+FROM base AS production
+
+WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nodeuser
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY --chown=nodeuser:nodejs . .
+
+# Set environment
+ENV NODE_ENV=production
+ENV PORT=4455
+
+# Switch to non-root user
+USER nodeuser
+
+# Expose port
 EXPOSE 4455
 
-# Define environment variable (optional, can be set in docker-compose)
-# ENV NODE_ENV production
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget -q --spider http://localhost:4455/health || exit 1
 
-# Run server.js when the container launches
-CMD [ "npm", "start" ] 
+# Start application
+CMD ["node", "src/index.js"]
+
+# ===========================================
+# Development Stage
+# ===========================================
+FROM base AS development
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+ENV NODE_ENV=development
+ENV PORT=4455
+
+EXPOSE 4455
+
+# Use nodemon for hot reload in development
+CMD ["npm", "run", "dev"]

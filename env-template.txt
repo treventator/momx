@@ -1,0 +1,62 @@
+# ===========================================
+# MomX E-Commerce Environment Variables
+# Rename this file to .env: mv env-template.txt .env
+# ===========================================
+
+# Application
+NODE_ENV=development
+PORT=4455
+FRONTEND_URL=http://localhost:8080
+
+# ===========================================
+# JWT Configuration (Required)
+# ===========================================
+JWT_SECRET=change-this-to-a-secure-random-string-at-least-32-characters
+JWT_EXPIRE=30d
+
+# ===========================================
+# MongoDB Configuration
+# ===========================================
+MONGO_URI=mongodb://mongo:27017/momx_shop
+# Production with auth:
+# MONGO_URI=mongodb://admin:password@mongo:27017/momx_shop?authSource=admin
+# MONGO_ROOT_USER=admin
+# MONGO_ROOT_PASSWORD=your-secure-password
+
+# ===========================================
+# Redis Configuration
+# ===========================================
+CACHE_ENABLED=true
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# ===========================================
+# LINE Configuration (Required for LINE features)
+# Get from: https://developers.line.biz/console/
+# ===========================================
+
+# LINE Login Channel
+LINE_CHANNEL_ID=
+LINE_CHANNEL_SECRET=
+
+# LINE Messaging API
+LINE_CHANNEL_ACCESS_TOKEN=
+
+# LIFF App ID
+LIFF_ID=
+
+# ===========================================
+# Optional: Email (SMTP)
+# ===========================================
+# SMTP_HOST=smtp.gmail.com
+# SMTP_PORT=587
+# SMTP_USER=
+# SMTP_PASS=
+# EMAIL_FROM=noreply@momx.com
+
+# ===========================================
+# Optional: Payment
+# ===========================================
+# STRIPE_SECRET_KEY=
+# PROMPTPAY_ID=
+
