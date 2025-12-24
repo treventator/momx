@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="th">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>ชำระเงิน - Tanyarat</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Thai:300,400,500,600,700&amp;display=swap">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/Lightbox-Gallery-baguetteBox.min.css">
+    <link rel="stylesheet" href="assets/css/theme.css">
+    <link rel="stylesheet" href="assets/css/checkout.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md sticky-top navbar-shrink py-3 navbar-light" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon">
+                    <img class="rounded-circle flex-shrink-0 me-3 fit-cover" width="75" height="75" src="assets/img/team/S__9469964_0.jpg">
+                </span>
+                <span style="font-weight: 600; letter-spacing: 1px;">TANYARAT</span>
+            </a>
+            <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1">
+                <span class="visually-hidden">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">หน้าหลัก</a></li>
+                    <li class="nav-item"><a class="nav-link" href="shop.html">สินค้า</a></li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html">การออกงาน</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contacts.html">ติดต่อเรา</a></li>
+                </ul>
+                <a class="btn btn-primary shadow" role="button" href="/api/shop/cart">
+                    <i class="fa fa-shopping-cart me-2"></i>ตระกร้าสินค้า
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="checkout-container py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="checkout-form">
+                        <div class="checkout-steps mb-4">
+                            <div class="step active">
+                                <div class="step-number">1</div>
+                                <div class="step-label">ข้อมูลลูกค้า</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-label">ที่อยู่จัดส่ง</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-label">การชำระเงิน</div>
+                            </div>
+                        </div>
+
+                        <div id="customer-info-form" class="checkout-step-form active">
+                            <h4 class="mb-3">ข้อมูลลูกค้า</h4>
+                            <form id="customer-form">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="firstName" class="form-label">ชื่อ *</label>
+                                        <input type="text" class="form-control" id="firstName" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="lastName" class="form-label">นามสกุล *</label>
+                                        <input type="text" class="form-control" id="lastName" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">อีเมล *</label>
+                                    <input type="email" class="form-control" id="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">เบอร์โทรศัพท์ *</label>
+                                    <input type="tel" class="form-control" id="phone" required>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="createAccount">
+                                    <label class="form-check-label" for="createAccount">
+                                        สร้างบัญชีผู้ใช้สำหรับการสั่งซื้อครั้งต่อไป
+                                    </label>
+                                </div>
+                                <div id="password-fields" style="display:none;">
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">รหัสผ่าน *</label>
+                                        <input type="password" class="form-control" id="password">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="confirmPassword" class="form-label">ยืนยันรหัสผ่าน *</label>
+                                        <input type="password" class="form-control" id="confirmPassword">
+                                    </div>
+                                </div>
+                                <button type="button" id="customer-info-next" class="btn btn-primary">ถัดไป</button>
+                            </form>
+                        </div>
+
+                        <div id="shipping-address-form" class="checkout-step-form">
+                            <h4 class="mb-3">ที่อยู่จัดส่ง</h4>
+                            <form id="shipping-form">
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">ที่อยู่ *</label>
+                                    <input type="text" class="form-control" id="address" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="address2" class="form-label">อพาร์ทเมนท์/ชั้น (ถ้ามี)</label>
+                                    <input type="text" class="form-control" id="address2">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5 mb-3">
+                                        <label for="province" class="form-label">จังหวัด *</label>
+                                        <select class="form-select" id="province" required>
+                                            <option value="">เลือกจังหวัด</option>
+                                            <option>กรุงเทพมหานคร</option>
+                                            <option>นนทบุรี</option>
+                                            <option>ปทุมธานี</option>
+                                            <option>สมุทรปราการ</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="district" class="form-label">อำเภอ/เขต *</label>
+                                        <select class="form-select" id="district" required>
+                                            <option value="">เลือกอำเภอ/เขต</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="postalCode" class="form-label">รหัสไปรษณีย์ *</label>
+                                        <input type="text" class="form-control" id="postalCode" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">วิธีการจัดส่ง *</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="shippingMethod" id="standardShipping" value="standard" checked>
+                                        <label class="form-check-label" for="standardShipping">
+                                            จัดส่งมาตรฐาน (3-5 วันทำการ) - ฿50.00
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="shippingMethod" id="expressShipping" value="express">
+                                        <label class="form-check-label" for="expressShipping">
+                                            จัดส่งด่วน (1-2 วันทำการ) - ฿100.00
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" id="shipping-prev" class="btn btn-outline-secondary">ย้อนกลับ</button>
+                                    <button type="button" id="shipping-next" class="btn btn-primary">ถัดไป</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div id="payment-method-form" class="checkout-step-form">
+                            <h4 class="mb-3">การชำระเงิน</h4>
+                            <form id="payment-form">
+                                <div class="mb-4">
+                                    <label class="form-label">วิธีการชำระเงิน *</label>
+                                    <div class="payment-methods">
+                                        <div class="form-check payment-method-item">
+                                            <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="credit" checked>
+                                            <label class="form-check-label" for="creditCard">
+                                                บัตรเครดิต/เดบิต
+                                                <div class="payment-icons">
+                                                    <i class="fab fa-cc-visa"></i>
+                                                    <i class="fab fa-cc-mastercard"></i>
+                                                    <i class="fab fa-cc-amex"></i>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <div class="form-check payment-method-item">
+                                            <input class="form-check-input" type="radio" name="paymentMethod" id="banking" value="banking">
+                                            <label class="form-check-label" for="banking">
+                                                โอนเงินผ่านธนาคาร
+                                                <div class="payment-icons">
+                                                    <i class="fas fa-university"></i>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <div class="form-check payment-method-item">
+                                            <input class="form-check-input" type="radio" name="paymentMethod" id="promptpay" value="promptpay">
+                                            <label class="form-check-label" for="promptpay">
+                                                พร้อมเพย์
+                                                <div class="payment-icons">
+                                                    <img src="assets/img/promptpay.png" alt="PromptPay" width="30">
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="credit-card-form">
+                                    <div class="mb-3">
+                                        <label for="cardName" class="form-label">ชื่อบนบัตร *</label>
+                                        <input type="text" class="form-control" id="cardName">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="cardNumber" class="form-label">หมายเลขบัตร *</label>
+                                        <input type="text" class="form-control" id="cardNumber" placeholder="XXXX XXXX XXXX XXXX">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="expiryDate" class="form-label">วันหมดอายุ *</label>
+                                            <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="cvv" class="form-label">CVV *</label>
+                                            <input type="text" class="form-control" id="cvv" placeholder="XXX">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="bank-transfer-info" style="display:none;">
+                                    <div class="alert alert-info">
+                                        <p><strong>ชื่อบัญชี:</strong> บริษัท ธัญรัตน์ คอสเมติกส์ จำกัด</p>
+                                        <p><strong>ธนาคาร:</strong> กสิกรไทย</p>
+                                        <p><strong>เลขที่บัญชี:</strong> 123-4-56789-0</p>
+                                        <p><strong>สาขา:</strong> สยามสแควร์</p>
+                                        <p class="mb-0">กรุณาอัพโหลดสลิปการโอนเงินหลังจากทำการสั่งซื้อ</p>
+                                    </div>
+                                </div>
+
+                                <div id="promptpay-info" style="display:none;">
+                                    <div class="alert alert-info text-center">
+                                        <img src="assets/img/qr-code.png" alt="PromptPay QR Code" class="img-fluid mb-3" style="max-width: 200px;">
+                                        <p><strong>PromptPay ID:</strong> 1234567890123</p>
+                                        <p class="mb-0">กรุณาอัพโหลดสลิปการโอนเงินหลังจากทำการสั่งซื้อ</p>
+                                    </div>
+                                </div>
+
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input" type="checkbox" id="terms" required>
+                                    <label class="form-check-label" for="terms">
+                                        ฉันได้อ่านและยอมรับ <a href="#" target="_blank">เงื่อนไขการใช้บริการ</a> และ <a href="#" target="_blank">นโยบายความเป็นส่วนตัว</a> *
+                                    </label>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" id="payment-prev" class="btn btn-outline-secondary">ย้อนกลับ</button>
+                                    <button type="submit" id="place-order-btn" class="btn btn-primary">ยืนยันการสั่งซื้อ</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="order-summary card shadow-sm">
+                        <div class="card-header bg-light">
+                            <h4 class="mb-0">สรุปรายการสั่งซื้อ</h4>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush mb-3" id="checkout-summary-list">
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div>
+                                        <h6 class="my-0">ชื่อสินค้าตัวอย่าง</h6>
+                                        <small class="text-muted">คำอธิบายสั้นๆ</small>
+                                    </div>
+                                    <span class="text-muted">฿1200</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div>
+                                        <h6 class="my-0">สินค้าอีกชิ้น</h6>
+                                    </div>
+                                    <span class="text-muted">฿800</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between bg-light">
+                                    <div class="text-success">
+                                        <h6 class="my-0">โค้ดส่วนลด</h6>
+                                        <small>EXAMPLECODE</small>
+                                    </div>
+                                    <span class="text-success">−฿50</span>
+                                </li>
+                            </ul>
+
+                            <div class="mb-3">
+                                <label for="discountCode" class="form-label">โค้ดส่วนลด</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="discountCode" placeholder="กรอกโค้ดส่วนลด">
+                                    <button class="btn btn-outline-secondary" type="button">ใช้</button>
+                                </div>
+                            </div>
+
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>รวม (บาท)</span>
+                                    <strong id="checkout-subtotal">฿2000</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>ค่าจัดส่ง</span>
+                                    <strong id="checkout-shipping">฿50.00</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>รวมทั้งสิ้น</span>
+                                    <strong id="checkout-total">฿2050.00</strong>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button type="submit" form="payment-form" class="btn btn-success btn-lg w-100" id="place-order-button">สั่งซื้อสินค้า</button>
+                            <div id="payment-error" class="text-danger mt-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center bg-dark text-white py-4">
+        <div class="container">
+            <div class="row row-cols-1 row-cols-lg-3">
+                <div class="col mb-3 mb-lg-0">
+                    <p class="text-muted my-2">ลิขสิทธิ์ © 2024 Tanyarat</p>
+                </div>
+                <div class="col mb-3 mb-lg-0">
+                    <ul class="list-inline my-2">
+                        <li class="list-inline-item me-4">
+                            <a href="#" class="link-light">นโยบายความเป็นส่วนตัว</a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a href="#" class="link-light">ข้อตกลงการใช้งาน</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <ul class="list-inline my-2">
+                        <li class="list-inline-item me-4">
+                            <a href="#" class="link-light"><i class="fab fa-facebook fa-lg"></i></a>
+                        </li>
+                        <li class="list-inline-item me-4">
+                            <a href="#" class="link-light"><i class="fab fa-instagram fa-lg"></i></a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a href="#" class="link-light"><i class="fab fa-line fa-lg"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="assets/js/Lightbox-Gallery-baguetteBox.min.js"></script>
+    <script src="assets/js/Lightbox-Gallery.js"></script>
+    <script src="assets/js/startup-modern.js"></script>
+    <script src="assets/js/cart.js"></script>
+    <script src="assets/js/checkout.js"></script>
+</body>
+</html> 

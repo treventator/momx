@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="th" data-bs-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>เข้าสู่ระบบ - Tanyarat</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Thai:300,400,500,600,700&amp;display=swap">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="assets/css/theme.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-md sticky-top navbar-shrink py-3 navbar-light" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                 <span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon">
+                     <img class="rounded-circle flex-shrink-0 me-3 fit-cover" width="75" height="75" src="assets/img/team/S__9469964_0.jpg">
+                 </span>
+                <span style="font-weight: 600; letter-spacing: 1px;">TANYARAT</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">หน้าแรก</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="shop.html">สินค้า</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contacts.html">ติดต่อเรา</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="login.html">เข้าสู่ระบบ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="register.html">สมัครสมาชิก</a>
+                    </li>
+                </ul>
+                 <a class="btn btn-primary shadow" role="button" href="/api/shop/cart">
+                     <i class="fa fa-shopping-cart me-2"></i>ตระกร้าสินค้า
+                 </a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="py-5">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6 col-xl-5">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-5">
+                            <div class="text-center mb-4">
+                                 <span class="bs-icon-lg bs-icon-circle bs-icon-primary shadow bs-icon my-4">
+                                     <i class="fa fa-user"></i>
+                                 </span>
+                            </div>
+                            <h2 class="text-center fw-bold mb-4">เข้าสู่ระบบ</h2>
+                            <form id="login-form" method="post">
+                                <div id="login-error" class="alert alert-danger d-none" role="alert"></div>
+                                <div class="mb-3">
+                                    <input class="form-control" type="email" id="email" name="email" placeholder="อีเมล" required>
+                                </div>
+                                <div class="mb-3">
+                                    <input class="form-control" type="password" id="password" name="password" placeholder="รหัสผ่าน" required>
+                                </div>
+                                <div class="mb-3">
+                                    <button class="btn btn-primary shadow d-block w-100" type="submit" id="login-button">เข้าสู่ระบบ</button>
+                                </div>
+                                <p class="text-muted text-center">ยังไม่มีบัญชี? <a href="register.html">สมัครสมาชิก</a></p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-primary-gradient pt-5">
+        <div class="container py-4 py-lg-5">
+             <div class="row g-5">
+                 <div class="col-lg-4">
+                     <div class="mb-4">
+                         <div class="d-flex align-items-center mb-3">
+                             <img class="rounded-circle me-3" width="50" height="50" src="assets/img/team/S__9469964_0.jpg">
+                             <h4 class="fw-bold mb-0 text-white">TANYARAT</h4>
+                         </div>
+                         <p class="text-white-50 mb-4">เราพร้อมดูแลร่างกายของคุณเสมือนญาติของเรา ให้ผลิตภัณฑ์ธัญญรัตน์ดูแลคุณ</p>
+                         <div class="d-flex">
+                             <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-facebook"></i></a>
+                             <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-instagram"></i></a>
+                             <a href="#" class="btn btn-outline-light btn-sm"><i class="fa fa-line"></i></a>
+                         </div>
+                     </div>
+                 </div>
+                 
+                 <div class="col-lg-2 col-md-4">
+                     <h5 class="fw-bold mb-4 text-white">บริการ</h5>
+                     <ul class="list-unstyled">
+                         <li class="mb-2"><a href="shop.html" class="text-decoration-none text-white-50">สินค้า</a></li>
+                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เสริมความงาม</a></li>
+                         <li class="mb-2"><a href="projects.html" class="text-decoration-none text-white-50">การออกงาน</a></li>
+                     </ul>
+                 </div>
+                 
+                 <div class="col-lg-2 col-md-4">
+                     <h5 class="fw-bold mb-4 text-white">เกี่ยวกับ</h5>
+                     <ul class="list-unstyled">
+                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เกี่ยวกับเรา</a></li>
+                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">ทีมงาน</a></li>
+                     </ul>
+                 </div>
+                 
+                 <div class="col-lg-4 col-md-4">
+                     <h5 class="fw-bold mb-4 text-white">ติดต่อเรา</h5>
+                      <ul class="list-unstyled">
+                         <li class="mb-2 text-white-50"><i class="fa fa-map-marker me-2"></i> 114 หมู่ 8 ต.ค่ายบกหวาน อ.เมือง จ.หนองคาย 43100</li>
+                         <li class="mb-2 text-white-50"><i class="fa fa-phone me-2"></i> 091-898-1595</li>
+                         <li class="mb-2 text-white-50"><i class="fa fa-line me-2"></i> kaii8-114</li>
+                      </ul>
+                 </div>
+             </div>
+             
+             <hr class="my-4 text-white-50">
+             
+             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center">
+                 <p class="text-white-50 mb-lg-0">© 2024 TANYARAT. สงวนลิขสิทธิ์.</p>
+                 <div>
+                     <a href="#" class="text-decoration-none text-white-50 me-3">นโยบายความเป็นส่วนตัว</a>
+                     <a href="#" class="text-decoration-none text-white-50">เงื่อนไขการใช้บริการ</a>
+                 </div>
+             </div>
+        </div>
+    </footer>
+
+    <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/login.js"></script> 
+    <script src="assets/js/common.js"></script>
+</body>
+</html> 

@@ -1,0 +1,56 @@
+# version: '3.8' # Removed obsolete version tag
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4455:4455"
+    volumes:
+      # Mount the products JSON file for persistence (optional but recommended for development)
+      - ./backend/products.json:/app/backend/products.json
+      # Mount node_modules for faster local development (optional)
+      # - ./backend/node_modules:/app/backend/node_modules 
+      # Mount source code for live reload during development (optional)
+      # - ./backend:/app/backend 
+    environment:
+      - NODE_ENV=development # Or production
+      - PORT=4455
+    # restart: unless-stopped # Optional: for production
+    # No healthcheck needed for this simple setup yet
+    networks:
+      - tanyarat-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80" # Access frontend via http://localhost:8080
+    volumes:
+      - ./frontend/public:/usr/share/nginx/html
+    depends_on:
+      - backend # Depends_on is okay, just removed the condition
+    restart: always # Changed from unless-stopped for consistency
+    networks:
+      - tanyarat-network
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=tanyarat_shop
+    restart: always
+    networks:
+      - tanyarat-network
+
+networks:
+  tanyarat-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

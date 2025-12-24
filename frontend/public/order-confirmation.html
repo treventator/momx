@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="th">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>คำสั่งซื้อสำเร็จ - Tanyarat</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Thai:300,400,500,600,700&amp;display=swap">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/theme.css">
+    <style>
+        :root {
+            --primary-color: #7a624a;
+            --secondary-color: #f8f5f1;
+            --accent-color: #b88e5e;
+            --text-color: #333333;
+            --light-text: #707070;
+        }
+        
+        body {
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            color: var(--text-color);
+            background-color: #ffffff;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+        
+        .text-warning {
+            color: var(--accent-color) !important;
+        }
+        
+        .order-success-icon {
+            width: 80px;
+            height: 80px;
+            background-color: #5cb85c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+        }
+        
+        .step-timeline {
+            position: relative;
+            margin-top: 3rem;
+            padding-left: 45px;
+        }
+        
+        .step-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e0e0e0;
+        }
+        
+        .timeline-step {
+            position: relative;
+            padding-bottom: 2.5rem;
+        }
+        
+        .timeline-step:last-child {
+            padding-bottom: 0;
+        }
+        
+        .timeline-step-circle {
+            position: absolute;
+            left: -45px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+        }
+        
+        .timeline-step.completed .timeline-step-circle {
+            background-color: #5cb85c;
+        }
+        
+        .timeline-step.active .timeline-step-circle {
+            background-color: var(--primary-color);
+        }
+        
+        @media (max-width: 767.98px) {
+            .order-details-card {
+                margin-top: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md sticky-top navbar-shrink py-3 navbar-light" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon">
+                    <img class="rounded-circle flex-shrink-0 me-3 fit-cover" width="75" height="75" src="assets/img/team/S__9469964_0.jpg">
+                </span>
+                <span style="font-weight: 600; letter-spacing: 1px;">TANYARAT</span>
+            </a>
+            <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1">
+                <span class="visually-hidden">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">หน้าหลัก</a></li>
+                    <li class="nav-item"><a class="nav-link" href="shop.html">สินค้า</a></li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html">การออกงาน</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contacts.html">ติดต่อเรา</a></li>
+                </ul>
+                <a class="btn btn-primary shadow" role="button" href="/api/shop/cart">
+                    <i class="fa fa-shopping-cart me-2"></i>ตระกร้าสินค้า
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <div class="order-success-icon">
+                    <i class="fa fa-check"></i>
+                </div>
+                <h1 class="mb-2">ขอบคุณสำหรับคำสั่งซื้อ</h1>
+                <p class="text-muted mb-4">คำสั่งซื้อของคุณได้รับการยืนยันเรียบร้อยแล้ว</p>
+                <div class="d-inline-block">
+                    <div class="d-flex align-items-center justify-content-between bg-light px-4 py-2 rounded">
+                        <span class="text-muted me-3">หมายเลขคำสั่งซื้อ:</span>
+                        <span class="fw-bold" id="orderNumber">TY2408100123</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">สถานะคำสั่งซื้อ</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="step-timeline">
+                                <div class="timeline-step completed">
+                                    <div class="timeline-step-circle">
+                                        <i class="fa fa-check"></i>
+                                    </div>
+                                    <h6>คำสั่งซื้อได้รับการยืนยัน</h6>
+                                    <p class="text-muted mb-0"><small id="orderDate">15 สิงหาคม 2024, 10:30</small></p>
+                                </div>
+                                <div class="timeline-step active" id="paymentStep">
+                                    <div class="timeline-step-circle">
+                                        <i class="fa fa-credit-card"></i>
+                                    </div>
+                                    <h6>รอการชำระเงิน</h6>
+                                    <div id="paymentInstructions">
+                                        <!-- Payment instructions will be inserted here based on payment method -->
+                                    </div>
+                                </div>
+                                <div class="timeline-step" id="processingStep">
+                                    <div class="timeline-step-circle">
+                                        <i class="fa fa-cog"></i>
+                                    </div>
+                                    <h6>กำลังเตรียมสินค้า</h6>
+                                    <p class="text-muted mb-0"><small>เราจะแจ้งให้คุณทราบเมื่อสินค้าถูกจัดส่ง</small></p>
+                                </div>
+                                <div class="timeline-step" id="shippedStep">
+                                    <div class="timeline-step-circle">
+                                        <i class="fa fa-truck"></i>
+                                    </div>
+                                    <h6>สินค้าถูกจัดส่งแล้ว</h6>
+                                    <div id="trackingInfo" class="d-none">
+                                        <p class="text-muted mb-2"><small>หมายเลขพัสดุ: <span id="trackingNumber">TH123456789</span></small></p>
+                                        <a href="#" class="btn btn-sm btn-outline-primary" id="trackingLink">ติดตามพัสดุ</a>
+                                    </div>
+                                </div>
+                                <div class="timeline-step" id="deliveredStep">
+                                    <div class="timeline-step-circle">
+                                        <i class="fa fa-home"></i>
+                                    </div>
+                                    <h6>จัดส่งสำเร็จ</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4 mb-5">
+                        <a href="shop.html" class="btn btn-outline-primary">
+                            <i class="fa fa-arrow-left me-2"></i>กลับไปเลือกซื้อสินค้า
+                        </a>
+                        <a href="account.html" class="btn btn-primary">
+                            ไปยังประวัติคำสั่งซื้อ<i class="fa fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card shadow-sm order-details-card">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">รายละเอียดคำสั่งซื้อ</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="orderItems">
+                                <!-- Order items will be inserted here -->
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>รวมค่าสินค้า</span>
+                                <span id="subtotal">฿700.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>ค่าจัดส่ง</span>
+                                <span id="shipping">฿60.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>ภาษีมูลค่าเพิ่ม 7%</span>
+                                <span id="tax">฿49.00</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>ยอดรวมทั้งสิ้น</span>
+                                <span id="total">฿809.00</span>
+                            </div>
+                            
+                            <div class="mt-4 pt-3 border-top">
+                                <h6>ข้อมูลการจัดส่ง</h6>
+                                <p class="mb-0" id="shippingAddress">คุณ ธนา ใจดี<br>123 หมู่ 4 ถ.พหลโยธิน<br>ต.คลองหลวง, ปทุมธานี 12120<br>โทร: 081-234-5678</p>
+                            </div>
+                            
+                            <div class="mt-4 pt-3 border-top">
+                                <h6>วิธีการจัดส่ง</h6>
+                                <p class="mb-0" id="shippingMethod">จัดส่งแบบมาตรฐาน (3-5 วัน)</p>
+                            </div>
+                            
+                            <div class="mt-4 pt-3 border-top">
+                                <h6>วิธีการชำระเงิน</h6>
+                                <p class="mb-0" id="paymentMethod">โอนเงินผ่านธนาคาร</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="bg-primary-gradient pt-5">
+        <div class="container py-4 py-lg-5">
+             <div class="row g-5">
+                 <div class="col-lg-4">
+                     <div class="mb-4">
+                         <div class="d-flex align-items-center mb-3">
+                             <img class="rounded-circle me-3" width="50" height="50" src="assets/img/team/S__9469964_0.jpg">
+                             <h4 class="fw-bold mb-0 text-white">TANYARAT</h4>
+                         </div>
+                         <p class="text-white-50 mb-4">เราพร้อมดูแลร่างกายของคุณเสมือนญาติของเรา ให้ผลิตภัณฑ์ธัญญรัตน์ดูแลคุณ</p>
+                         <div class="d-flex">
+                             <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-facebook"></i></a>
+                             <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-instagram"></i></a>
+                             <a href="#" class="btn btn-outline-light btn-sm"><i class="fa fa-line"></i></a>
+                         </div>
+                     </div>
+                 </div>
+                 
+                 <div class="col-lg-2 col-md-4">
+                     <h5 class="fw-bold mb-4 text-white">บริการ</h5>
+                     <ul class="list-unstyled">
+                         <li class="mb-2"><a href="shop.html" class="text-decoration-none text-white-50">สินค้า</a></li>
+                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เสริมความงาม</a></li>
+                         <li class="mb-2"><a href="projects.html" class="text-decoration-none text-white-50">การออกงาน</a></li>
+                     </ul>
+                 </div>
+                 
+                 <div class="col-lg-2 col-md-4">
+                     <h5 class="fw-bold mb-4 text-white">เกี่ยวกับ</h5>
+                     <ul class="list-unstyled">
+                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เกี่ยวกับเรา</a></li>
+                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">ทีมงาน</a></li>
+                     </ul>
+                 </div>
+                 
+                 <div class="col-lg-4 col-md-4">
+                     <h5 class="fw-bold mb-4 text-white">ติดต่อเรา</h5>
+                      <ul class="list-unstyled">
+                         <li class="mb-2 text-white-50"><i class="fa fa-map-marker me-2"></i> 114 หมู่ 8 ต.ค่ายบกหวาน อ.เมือง จ.หนองคาย 43100</li>
+                         <li class="mb-2 text-white-50"><i class="fa fa-phone me-2"></i> 091-898-1595</li>
+                         <li class="mb-2 text-white-50"><i class="fa fa-line me-2"></i> kaii8-114</li>
+                      </ul>
+                 </div>
+             </div>
+             
+             <hr class="my-4 text-white-50">
+             
+             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center">
+                 <p class="text-white-50 mb-lg-0">© 2024 TANYARAT. สงวนลิขสิทธิ์.</p>
+                 <div>
+                     <a href="#" class="text-decoration-none text-white-50 me-3">นโยบายความเป็นส่วนตัว</a>
+                     <a href="#" class="text-decoration-none text-white-50">เงื่อนไขการใช้บริการ</a>
+                 </div>
+             </div>
+        </div>
+    </footer>
+    
+    <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/order-confirmation.js"></script>
+    <script src="assets/js/common.js"></script>
+</body>
+
+</html> 

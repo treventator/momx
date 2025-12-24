@@ -1,0 +1,43 @@
+{
+    # Global options block
+    servers :80 {
+        protocols h1 h2c # Enable HTTP/1.1 and H/2 Cleartext
+    }
+}
+
+:80 {
+    # Serve static files from /usr/share/nginx/html
+    # We use this path to align with the existing docker-compose volume mount
+    root * /usr/share/nginx/html
+    file_server
+
+    # Replicate security headers from nginx.conf
+    header {
+        # Prevent clickjacking
+        X-Frame-Options "SAMEORIGIN"
+
+        # Enable cross-site scripting (XSS) filter
+        X-XSS-Protection "1; mode=block"
+
+        # Prevent MIME-sniffing
+        X-Content-Type-Options "nosniff"
+
+        # Remove Caddy's default Server header for slight obfuscation
+        -Server
+    }
+
+    # Optional: Configure error pages (requires files in /usr/share/nginx/html)
+    # handle_errors {
+    #    rewrite * /404.html {path}/ /404.html
+    #    file_server {
+    #        root /usr/share/nginx/html
+    #    }
+    # }
+
+    # Optional: Add Cache-Control headers
+    # header /assets/* Cache-Control "public, max-age=31536000, immutable"
+    # header *.html Cache-Control "no-cache"
+
+    # Reverse proxy API requests to the backend service
+    reverse_proxy /api/* backend:4455
+} 

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="th" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>บัญชีของฉัน - Tanyarat Shop</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Thai:300,400,500,600,700&amp;display=swap">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="assets/css/theme.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/bold-and-bright.css">
+    <style>
+        .account-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+            background-color: var(--primary-color);
+        }
+        .section-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+        .order-item {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-md sticky-top navbar-shrink py-3 navbar-light" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon">
+                     <img class="rounded-circle flex-shrink-0 me-3 fit-cover" width="75" height="75" src="assets/img/team/S__9469964_0.jpg">
+                 </span>
+                <span style="font-weight: 600; letter-spacing: 1px;">TANYARAT</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">หน้าแรก</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="shop.html">สินค้า</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contacts.html">ติดต่อเรา</a>
+                    </li>
+                     <li class="nav-item d-none" id="navLogin">
+                        <a class="nav-link" href="login.html">เข้าสู่ระบบ</a>
+                    </li>
+                     <li class="nav-item d-none" id="navRegister">
+                        <a class="nav-link" href="register.html">สมัครสมาชิก</a>
+                    </li>
+                    <li class="nav-item dropdown d-none" id="navAccount">
+                        <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user me-1"></i> บัญชี
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="account.html">ข้อมูลบัญชี</a></li>
+                            <li><a class="dropdown-item" href="#" id="logoutButton">ออกจากระบบ</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item d-none" id="navAdmin">
+                         <a class="nav-link" href="admin.html">จัดการระบบ</a>
+                     </li>
+                </ul>
+                <a class="btn btn-primary shadow" role="button" href="/api/shop/cart">
+                     <i class="fa fa-shopping-cart me-2"></i>ตระกร้าสินค้า
+                 </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5 account-container">
+        <h2 class="mb-4">บัญชีของฉัน</h2>
+
+        <div class="row">
+            <div class="col-md-3">
+                <!-- Account Navigation -->
+                 <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <button class="nav-link active text-start" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="true"><i class="fas fa-user-circle me-2"></i>ข้อมูลส่วนตัว</button>
+                    <button class="nav-link text-start" id="v-pills-orders-tab" data-bs-toggle="pill" data-bs-target="#v-pills-orders" type="button" role="tab" aria-controls="v-pills-orders" aria-selected="false"><i class="fas fa-box me-2"></i>รายการสั่งซื้อ</button>
+                    <button class="nav-link text-start" id="v-pills-edit-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-edit-profile" type="button" role="tab" aria-controls="v-pills-edit-profile" aria-selected="false"><i class="fas fa-edit me-2"></i>แก้ไขข้อมูล</button>
+                    <button class="nav-link text-start" id="v-pills-logout-tab" type="button"><i class="fas fa-sign-out-alt me-2"></i>ออกจากระบบ</button>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <!-- Tab Content -->
+                <div class="tab-content" id="v-pills-tabContent">
+                    <!-- Profile Tab -->
+                    <div class="tab-pane fade show active section-card" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+                        <h4>ข้อมูลส่วนตัว</h4>
+                        <hr>
+                        <div class="text-center mb-3">
+                             <img src="assets/img/default-avatar.png" alt="Profile Picture" class="profile-pic" id="profilePicDisplay">
+                         </div>
+                        <p><strong>ชื่อ:</strong> <span id="userNameDisplay">กำลังโหลด...</span></p>
+                        <p><strong>อีเมล:</strong> <span id="userEmailDisplay">กำลังโหลด...</span></p>
+                        <p><strong>เบอร์โทรศัพท์:</strong> <span id="userPhoneDisplay">กำลังโหลด...</span></p>
+                        <p><strong>วันที่สมัคร:</strong> <span id="userJoinDateDisplay">กำลังโหลด...</span></p>
+                    </div>
+
+                    <!-- Orders Tab -->
+                     <div class="tab-pane fade section-card" id="v-pills-orders" role="tabpanel" aria-labelledby="v-pills-orders-tab">
+                        <h4>รายการสั่งซื้อ</h4>
+                        <hr>
+                        <div id="orderHistory">
+                             <p class="text-center text-muted">ยังไม่มีรายการสั่งซื้อ</p>
+                            <!-- Order items will be loaded here -->
+                         </div>
+                    </div>
+
+                    <!-- Edit Profile Tab -->
+                    <div class="tab-pane fade section-card" id="v-pills-edit-profile" role="tabpanel" aria-labelledby="v-pills-edit-profile-tab">
+                         <h4>แก้ไขข้อมูลส่วนตัว</h4>
+                        <hr>
+                         <form id="editProfileForm">
+                             <div id="editProfileAlert" class="alert d-none"></div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="editFirstName" class="form-label">ชื่อ</label>
+                                    <input type="text" class="form-control" id="editFirstName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="editLastName" class="form-label">นามสกุล</label>
+                                    <input type="text" class="form-control" id="editLastName" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editEmail" class="form-label">อีเมล</label>
+                                <input type="email" class="form-control" id="editEmail" required disabled>
+                                <div class="form-text">ไม่สามารถเปลี่ยนอีเมลได้</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editPhone" class="form-label">เบอร์โทรศัพท์</label>
+                                <input type="tel" class="form-control" id="editPhone" required>
+                            </div>
+                             <hr>
+                            <h5>เปลี่ยนรหัสผ่าน (ทิ้งว่างไว้หากไม่ต้องการเปลี่ยน)</h5>
+                             <div class="mb-3">
+                                <label for="editCurrentPassword" class="form-label">รหัสผ่านปัจจุบัน</label>
+                                <input type="password" class="form-control" id="editCurrentPassword">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editNewPassword" class="form-label">รหัสผ่านใหม่</label>
+                                <input type="password" class="form-control" id="editNewPassword" minlength="6">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editConfirmPassword" class="form-label">ยืนยันรหัสผ่านใหม่</label>
+                                <input type="password" class="form-control" id="editConfirmPassword" minlength="6">
+                            </div>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>บันทึกการเปลี่ยนแปลง</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-primary-gradient pt-5">
+        <div class="container py-4 py-lg-5">
+             <div class="row g-5">
+                 <div class="col-lg-4">
+                     <div class="mb-4">
+                         <div class="d-flex align-items-center mb-3">
+                             <img class="rounded-circle me-3" width="50" height="50" src="assets/img/team/S__9469964_0.jpg">
+                             <h4 class="fw-bold mb-0 text-white">TANYARAT</h4>
+                         </div>
+                         <p class="text-white-50 mb-4">เราพร้อมดูแลร่างกายของคุณเสมือนญาติของเรา ให้ผลิตภัณฑ์ธัญญรัตน์ดูแลคุณ</p>
+                         <div class="d-flex">
+                             <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-facebook"></i></a>
+                             <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-instagram"></i></a>
+                             <a href="#" class="btn btn-outline-light btn-sm"><i class="fa fa-line"></i></a>
+                         </div>
+                     </div>
+                 </div>
+                 
+                 <div class="col-lg-2 col-md-4">
+                     <h5 class="fw-bold mb-4 text-white">บริการ</h5>
+                     <ul class="list-unstyled">
+                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">แชมพู</a></li>
+                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">ครีมอาบน้ำ</a></li>
+                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เซรั่มบำรุงผิว</a></li>
+                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เสริมความงาม</a></li>
+                     </ul>
+                 </div>
+                 
+                 <div class="col-lg-2 col-md-4">
+                     <h5 class="fw-bold mb-4 text-white">เกี่ยวกับ</h5>
+                     <ul class="list-unstyled">
+                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เกี่ยวกับเรา</a></li>
+                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">ทีมงาน</a></li>
+                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">มาตรฐานการผลิต</a></li>
+                     </ul>
+                 </div>
+                 
+                 <div class="col-lg-4 col-md-4">
+                     <h5 class="fw-bold mb-4 text-white">สมัครรับข่าวสาร</h5>
+                     <p class="text-white-50 mb-4">รับข่าวสารและโปรโมชั่นพิเศษก่อนใคร</p>
+                     <form>
+                         <div class="input-group mb-3">
+                             <input type="email" class="form-control" placeholder="อีเมลของคุณ">
+                             <button class="btn btn-warning" type="button">สมัคร</button>
+                         </div>
+                     </form>
+                 </div>
+             </div>
+             
+             <hr class="my-4 text-white-50">
+             
+             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center">
+                 <p class="text-white-50 mb-lg-0">© 2024 TANYARAT. สงวนลิขสิทธิ์.</p>
+                 <div>
+                     <a href="#" class="text-decoration-none text-white-50 me-3">นโยบายความเป็นส่วนตัว</a>
+                     <a href="#" class="text-decoration-none text-white-50">เงื่อนไขการใช้บริการ</a>
+                 </div>
+             </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Account JS -->
+    <script src="assets/js/account.js"></script>
+    <!-- Common JS -->
+    <script src="assets/js/common.js"></script>
+</body>
+</html>

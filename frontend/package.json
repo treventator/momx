@@ -1,0 +1,19 @@
+{
+  "name": "tanyarat-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Tanyarat e-commerce website",
+  "main": "index.js",
+  "scripts": {
+    "start": "serve -s public",
+    "dev": "serve public",
+    "build": "cp -r ../assets public/assets && cp ../*.html public/"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/web": "^0.24.0",
+    "serve": "^14.0.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
+}

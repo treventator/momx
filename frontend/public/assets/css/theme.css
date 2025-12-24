@@ -1,0 +1,82 @@
+:root {
+    --primary-color: #7a624a;
+    --secondary-color: #f8f5f1;
+    --accent-color: #b88e5e;
+    --text-color: #333333;
+    --light-text: #707070;
+}
+
+body {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    color: var(--text-color);
+    background-color: #ffffff;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.text-warning {
+    color: var(--accent-color) !important;
+}
+
+.bs-icon-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.bg-primary-gradient {
+    background: linear-gradient(180deg, var(--secondary-color) 0%, #ffffff 100%);
+}
+
+/* Footer specific styling */
+footer.bg-primary-gradient {
+    color: var(--text-color);
+}
+
+footer.bg-primary-gradient h5 {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+footer.bg-primary-gradient .text-muted {
+    color: var(--text-color) !important;
+}
+
+footer.bg-primary-gradient a.text-muted {
+    color: var(--primary-color) !important;
+}
+
+footer.bg-primary-gradient a.text-muted:hover {
+    color: var(--accent-color) !important;
+    text-decoration: underline !important;
+}
+
+.navbar {
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+}
+
+.modern-container {
+    padding: 4rem 0;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+} 

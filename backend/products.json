@@ -1,0 +1,38 @@
+[
+  {
+    "id": "prod_5958ddd5",
+    "name": "asdaS",
+    "category": "asdaSd",
+    "price": 1231,
+    "stock": 31231,
+    "imageUrl": "asdasdasก",
+    "description": "หกดเกดเกดห"
+  },
+  {
+    "id": "prod_cee8d499",
+    "name": "dfsdfa",
+    "category": "adsfasdf",
+    "price": 234233,
+    "stock": 423423,
+    "imageUrl": "wafhddrgas",
+    "description": "dfgadfgdsghsdg"
+  },
+  {
+    "id": "prod_4025b9c8",
+    "name": "asfsdfasd",
+    "category": "fasdfasdfasd",
+    "price": 1232,
+    "stock": 213,
+    "imageUrl": "dfsdf",
+    "description": "asdfasdfasdfasdfasdfasdf"
+  },
+  {
+    "id": "prod_249dd85c",
+    "name": "sdfsdfas",
+    "category": "asfsf",
+    "price": 12312,
+    "stock": 23121,
+    "imageUrl": "",
+    "description": "ฟหกดฟหกดฟหกดฟหกด"
+  }
+]
