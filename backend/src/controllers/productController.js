@@ -747,4 +747,394 @@ exports.deleteProductReview = async (req, res, next) => {
     console.error('Error in deleteProductReview:', error);
     next(error);
   }
+};
+
+// =====================================================
+// ADMIN PRODUCT MANAGEMENT
+// =====================================================
+
+/**
+ * @desc    ดึงรายการสินค้าทั้งหมด (Admin)
+ * @route   GET /api/admin/products
+ * @access  Private/Admin
+ */
+exports.getAllAdminProducts = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    
+    // Query params
+    const { category, search, isActive, isFeatured, lowStock } = req.query;
+    
+    // Build query
+    const queryObject = {};
+    
+    if (category) {
+      if (mongoose.Types.ObjectId.isValid(category)) {
+        queryObject.category = category;
+      }
+    }
+    
+    if (search) {
+      queryObject.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { sku: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    if (isActive !== undefined) {
+      queryObject.isActive = isActive === 'true';
+    }
+    
+    if (isFeatured !== undefined) {
+      queryObject.isFeatured = isFeatured === 'true';
+    }
+    
+    if (lowStock === 'true') {
+      queryObject.stock = { $lte: 5 };
+    }
+    
+    // Execute query
+    const products = await Product.find(queryObject)
+      .populate('category', 'name slug')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+    
+    const total = await Product.countDocuments(queryObject);
+    
+    res.status(200).json({
+      success: true,
+      count: products.length,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      products
+    });
+  } catch (error) {
+    console.error('Error in getAllAdminProducts:', error);
+    next(error);
+  }
+};
+
+/**
+ * @desc    สร้างสินค้าใหม่
+ * @route   POST /api/admin/products
+ * @access  Private/Admin
+ */
+exports.createProduct = async (req, res, next) => {
+  try {
+    const {
+      name,
+      description,
+      shortDescription,
+      price,
+      salePrice,
+      memberPrice,
+      category,
+      stock,
+      sku,
+      images,
+      tags,
+      isActive,
+      isFeatured,
+      isSubscribable,
+      subscriptionPlans,
+      ingredients,
+      weight,
+      dimensions
+    } = req.body;
+    
+    // Validate required fields
+    if (!name || !description || !price || !category || !sku) {
+      throw new BadRequestError('กรุณากรอกข้อมูลที่จำเป็น: ชื่อ, รายละเอียด, ราคา, หมวดหมู่, รหัสสินค้า');
+    }
+    
+    // Check if SKU already exists
+    const existingSku = await Product.findOne({ sku });
+    if (existingSku) {
+      throw new BadRequestError('รหัสสินค้า (SKU) นี้มีอยู่แล้ว');
+    }
+    
+    // Create product
+    const product = await Product.create({
+      name,
+      description,
+      shortDescription: shortDescription || '',
+      price,
+      salePrice: salePrice || 0,
+      memberPrice: memberPrice || 0,
+      category,
+      stock: stock || 0,
+      sku,
+      images: images || [],
+      tags: tags || [],
+      isActive: isActive !== undefined ? isActive : true,
+      isFeatured: isFeatured || false,
+      isSubscribable: isSubscribable || false,
+      subscriptionPlans: subscriptionPlans || [],
+      ingredients: ingredients || '',
+      weight: weight || 0,
+      dimensions: dimensions || {}
+    });
+    
+    // Clear cache
+    if (CACHE_ENABLED) {
+      await redis.del('products:*');
+    }
+    
+    res.status(201).json({
+      success: true,
+      message: 'สร้างสินค้าใหม่สำเร็จ',
+      product
+    });
+  } catch (error) {
+    console.error('Error in createProduct:', error);
+    next(error);
+  }
+};
+
+/**
+ * @desc    อัพเดทสินค้า
+ * @route   PUT /api/admin/products/:id
+ * @access  Private/Admin
+ */
+exports.updateProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestError('รหัสสินค้าไม่ถูกต้อง');
+    }
+    
+    const product = await Product.findById(id);
+    
+    if (!product) {
+      throw new NotFoundError('ไม่พบสินค้าที่ต้องการ');
+    }
+    
+    // Fields that can be updated
+    const allowedUpdates = [
+      'name', 'description', 'shortDescription', 'price', 'salePrice', 
+      'memberPrice', 'category', 'stock', 'sku', 'images', 'tags',
+      'isActive', 'isFeatured', 'isSubscribable', 'subscriptionPlans',
+      'ingredients', 'weight', 'dimensions'
+    ];
+    
+    // Update only provided fields
+    for (const field of allowedUpdates) {
+      if (req.body[field] !== undefined) {
+        product[field] = req.body[field];
+      }
+    }
+    
+    // Check if SKU is being changed and already exists
+    if (req.body.sku && req.body.sku !== product.sku) {
+      const existingSku = await Product.findOne({ sku: req.body.sku, _id: { $ne: id } });
+      if (existingSku) {
+        throw new BadRequestError('รหัสสินค้า (SKU) นี้มีอยู่แล้ว');
+      }
+    }
+    
+    await product.save();
+    
+    // Clear cache
+    if (CACHE_ENABLED) {
+      await redis.del(`product:id:${id}`);
+      await redis.del(`product:slug:${product.slug}`);
+      await redis.del('products:*');
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'อัพเดทสินค้าสำเร็จ',
+      product
+    });
+  } catch (error) {
+    console.error('Error in updateProduct:', error);
+    next(error);
+  }
+};
+
+/**
+ * @desc    ลบสินค้า
+ * @route   DELETE /api/admin/products/:id
+ * @access  Private/Admin
+ */
+exports.deleteProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestError('รหัสสินค้าไม่ถูกต้อง');
+    }
+    
+    const product = await Product.findById(id);
+    
+    if (!product) {
+      throw new NotFoundError('ไม่พบสินค้าที่ต้องการ');
+    }
+    
+    await Product.findByIdAndDelete(id);
+    
+    // Clear cache
+    if (CACHE_ENABLED) {
+      await redis.del(`product:id:${id}`);
+      await redis.del(`product:slug:${product.slug}`);
+      await redis.del('products:*');
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'ลบสินค้าสำเร็จ'
+    });
+  } catch (error) {
+    console.error('Error in deleteProduct:', error);
+    next(error);
+  }
+};
+
+/**
+ * @desc    ปรับจำนวนสินค้าคงเหลือ (Stock)
+ * @route   PUT /api/admin/products/:id/stock
+ * @access  Private/Admin
+ */
+exports.updateStock = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { stock, adjustment, reason } = req.body;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestError('รหัสสินค้าไม่ถูกต้อง');
+    }
+    
+    const product = await Product.findById(id);
+    
+    if (!product) {
+      throw new NotFoundError('ไม่พบสินค้าที่ต้องการ');
+    }
+    
+    let newStock;
+    let changeType;
+    
+    if (stock !== undefined) {
+      // ตั้งค่า stock โดยตรง
+      newStock = parseInt(stock);
+      changeType = 'set';
+    } else if (adjustment !== undefined) {
+      // ปรับ stock (+ หรือ -)
+      newStock = product.stock + parseInt(adjustment);
+      changeType = adjustment > 0 ? 'increase' : 'decrease';
+    } else {
+      throw new BadRequestError('กรุณาระบุ stock หรือ adjustment');
+    }
+    
+    if (newStock < 0) {
+      throw new BadRequestError('จำนวนสินค้าไม่สามารถติดลบได้');
+    }
+    
+    const oldStock = product.stock;
+    product.stock = newStock;
+    await product.save();
+    
+    // Log stock change (could be saved to a separate collection for history)
+    console.log(`Stock updated for ${product.name}: ${oldStock} -> ${newStock} (${changeType}, reason: ${reason || 'not specified'})`);
+    
+    // Clear cache
+    if (CACHE_ENABLED) {
+      await redis.del(`product:id:${id}`);
+      await redis.del(`product:slug:${product.slug}`);
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'อัพเดทจำนวนสินค้าสำเร็จ',
+      data: {
+        productId: id,
+        productName: product.name,
+        oldStock,
+        newStock,
+        changeType,
+        reason: reason || null
+      }
+    });
+  } catch (error) {
+    console.error('Error in updateStock:', error);
+    next(error);
+  }
+};
+
+/**
+ * @desc    อัพเดท Stock หลายสินค้าพร้อมกัน
+ * @route   PUT /api/admin/products/bulk-stock
+ * @access  Private/Admin
+ */
+exports.bulkUpdateStock = async (req, res, next) => {
+  try {
+    const { updates } = req.body;
+    
+    if (!updates || !Array.isArray(updates) || updates.length === 0) {
+      throw new BadRequestError('กรุณาระบุข้อมูลการอัพเดท');
+    }
+    
+    const results = [];
+    
+    for (const update of updates) {
+      const { productId, stock, adjustment } = update;
+      
+      if (!mongoose.Types.ObjectId.isValid(productId)) {
+        results.push({ productId, success: false, error: 'รหัสสินค้าไม่ถูกต้อง' });
+        continue;
+      }
+      
+      const product = await Product.findById(productId);
+      
+      if (!product) {
+        results.push({ productId, success: false, error: 'ไม่พบสินค้า' });
+        continue;
+      }
+      
+      let newStock;
+      if (stock !== undefined) {
+        newStock = parseInt(stock);
+      } else if (adjustment !== undefined) {
+        newStock = product.stock + parseInt(adjustment);
+      } else {
+        results.push({ productId, success: false, error: 'ไม่ได้ระบุ stock หรือ adjustment' });
+        continue;
+      }
+      
+      if (newStock < 0) {
+        results.push({ productId, success: false, error: 'จำนวนไม่สามารถติดลบได้' });
+        continue;
+      }
+      
+      const oldStock = product.stock;
+      product.stock = newStock;
+      await product.save();
+      
+      results.push({
+        productId,
+        productName: product.name,
+        success: true,
+        oldStock,
+        newStock
+      });
+    }
+    
+    // Clear cache
+    if (CACHE_ENABLED) {
+      await redis.del('products:*');
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'อัพเดทจำนวนสินค้าหลายรายการสำเร็จ',
+      results
+    });
+  } catch (error) {
+    console.error('Error in bulkUpdateStock:', error);
+    next(error);
+  }
 }; 

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
+const categoryController = require('../controllers/categoryController');
 const userController = require('../controllers/userController');
 const orderController = require('../controllers/orderController');
 const { auth, adminAuth } = require('../middlewares/authMiddleware');
@@ -18,6 +19,22 @@ router.route('/products/:id')
   .get(auth, adminAuth, productController.getProductById)
   .put(auth, adminAuth, productController.updateProduct)
   .delete(auth, adminAuth, productController.deleteProduct);
+
+// Stock Management
+router.put('/products/:id/stock', auth, adminAuth, productController.updateStock);
+router.put('/products/bulk-stock', auth, adminAuth, productController.bulkUpdateStock);
+
+// Category Management
+router.route('/categories')
+  .get(auth, adminAuth, categoryController.getAllAdminCategories)
+  .post(auth, adminAuth, categoryController.createCategory);
+
+router.route('/categories/:id')
+  .get(auth, adminAuth, categoryController.getCategoryById)
+  .put(auth, adminAuth, categoryController.updateCategory)
+  .delete(auth, adminAuth, categoryController.deleteCategory);
+
+router.patch('/categories/:id/toggle', auth, adminAuth, categoryController.toggleCategoryStatus);
 
 // Order Management
 router.route('/orders')

@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const categoryController = require('../controllers/categoryController');
 
-// TODO: Add actual routes and controller requires here
+// Public routes
+router.get('/', categoryController.getAllCategories);
+router.get('/slug/:slug', categoryController.getCategoryBySlug);
+router.get('/:id', categoryController.getCategoryById);
 
-// Placeholder route to prevent errors if file is empty but required
-router.get('/placeholder', (req, res) => res.json({ message: 'Category routes placeholder' }));
-
-module.exports = router; 
+module.exports = router;
