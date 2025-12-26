@@ -6,7 +6,7 @@
 # Application
 NODE_ENV=development
 PORT=4455
-FRONTEND_URL=http://localhost:8080
+FRONTEND_URL=https://liff.tanyarat.online
 
 # ===========================================
 # JWT Configuration (Required)
@@ -36,14 +36,14 @@ REDIS_PORT=6379
 # ===========================================
 
 # LINE Login Channel
-LINE_CHANNEL_ID=
-LINE_CHANNEL_SECRET=
+LINE_CHANNEL_ID=2008785286
+LINE_CHANNEL_SECRET=f3c3f992e2ba8ebffa9c8032b42cbc45
 
 # LINE Messaging API
-LINE_CHANNEL_ACCESS_TOKEN=
+LINE_CHANNEL_ACCESS_TOKEN=l8RkkSc8VVL2P2jLrEGcSuhNFBd+s74BddWiWkLdz0py1De9lYDtQUx787h+P5FNZl5hfjB67+4OjhPg9aAkAAj4bcSw4z5bbq5QeNh6cjIHsOlp4pM0+tjMx2qxBKIMbMo2q2JNg4/+4KAum+UKHgdB04t89/1O/w1cDnyilFU=
 
 # LIFF App ID
-LIFF_ID=
+LIFF_ID=2008785286-iV2E6B95
 
 # ===========================================
 # Optional: Email (SMTP)
