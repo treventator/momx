@@ -820,11 +820,16 @@ function setupEventHandlers() {
 function fetchOverviewData() {
     console.log('Fetching overview data...');
 
-    // Placeholder data (replace with actual API calls)
-    document.getElementById('todaySales').textContent = '0 บาท';
-    document.getElementById('newOrders').textContent = '0';
-    document.getElementById('newContacts').textContent = '0';
-    document.getElementById('totalUsers').textContent = '0';
+    // Placeholder data (replace with actual API calls) - with null checks for new HTML
+    const todaySales = document.getElementById('todaySales');
+    const newOrders = document.getElementById('newOrders');
+    const newContacts = document.getElementById('newContacts');
+    const totalUsers = document.getElementById('totalUsers');
+
+    if (todaySales) todaySales.textContent = '0 บาท';
+    if (newOrders) newOrders.textContent = '0';
+    if (newContacts) newContacts.textContent = '0';
+    if (totalUsers) totalUsers.textContent = '0';
 
     // Example API call
     // fetch('/api/admin/stats', {
