@@ -1,679 +1,882 @@
 <!DOCTYPE html>
 <html data-bs-theme="light" lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Admin Dashboard - Tanyarat</title>
+    <title>Admin Dashboard - TANYARAT</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Thai:300,400,500,600,700&amp;display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Thai:300,400,500,600,700&display=swap">
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
     <style>
         :root {
-            --primary-color: #7a624a;
-            --secondary-color: #f8f5f1;
-            --accent-color: #b88e5e;
-            --text-color: #333333;
-            --light-text: #707070;
-            --focus-outline: 3px solid rgba(122, 98, 74, 0.5);
+            /* TANYARAT Brand Colors */
+            --tanyarat-primary: #7a624a;
+            --tanyarat-primary-dark: #5a4a3a;
+            --tanyarat-secondary: #f8f5f1;
+            --tanyarat-accent: #b88e5e;
+            --tanyarat-cream: #faf7f4;
+
+            /* UI Colors */
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+
+            /* Neutral */
+            --text-primary: #333333;
+            --text-secondary: #707070;
+            --bg-sidebar: #1a1a2e;
+            --bg-sidebar-hover: #252542;
+
+            /* Sidebar Width */
+            --sidebar-width: 260px;
+            --sidebar-collapsed: 80px;
         }
-        
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'IBM Plex Sans Thai', sans-serif;
-            color: var(--text-color);
-            background-color: var(--secondary-color);
-            font-size: 16px; /* Base font size increased */
-            line-height: 1.6;
+            background-color: var(--tanyarat-cream);
+            color: var(--text-primary);
+            min-height: 100vh;
         }
-        
-        /* Senior-friendly styles */
-        .senior-friendly {
-            font-size: 18px; /* Increased base font for seniors */
+
+        /* ==================== SIDEBAR ==================== */
+        .admin-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--bg-sidebar) 0%, #16162a 100%);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
         }
-        
-        .senior-friendly h1 {
-            font-size: 32px;
-            margin-bottom: 20px;
+
+        .sidebar-brand {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        
-        .senior-friendly h2 {
-            font-size: 28px;
-            margin-bottom: 18px;
+
+        .sidebar-brand img {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            object-fit: cover;
         }
-        
-        .senior-friendly h5 {
-            font-size: 22px;
-        }
-        
-        .senior-friendly .card-title {
-            font-size: 22px;
-            font-weight: 600;
-        }
-        
-        .senior-friendly .nav-link {
-            font-size: 20px;
-            padding: 10px 18px;
-        }
-        
-        .senior-friendly .btn {
-            font-size: 18px;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            margin: 5px;
-        }
-        
-        .senior-friendly .form-control {
-            font-size: 18px;
-            padding: 12px;
-            height: auto;
-        }
-        
-        .senior-friendly .form-label {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .senior-friendly .table {
-            font-size: 18px;
-        }
-        
-        .senior-friendly .table th {
-            font-size: 20px;
+
+        .sidebar-brand-text {
+            color: white;
+            font-size: 1.3rem;
             font-weight: 700;
-            background-color: var(--secondary-color);
+            letter-spacing: 1px;
         }
-        
-        .high-contrast {
-            --primary-color: #59432D;
-            --text-color: #111111;
-            --light-text: #222222;
+
+        .sidebar-brand-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        
-        /* Better focus indicators for accessibility */
-        .btn:focus, 
-        .form-control:focus, 
-        .nav-link:focus,
-        a:focus {
-            outline: var(--focus-outline);
-            box-shadow: 0 0 0 3px rgba(122, 98, 74, 0.5);
+
+        .sidebar-nav {
+            padding: 20px 0;
         }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
+
+        .nav-section-title {
+            padding: 10px 25px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 10px;
         }
-        
-        .btn-primary:hover {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
+
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 25px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            gap: 15px;
         }
-        
-        .text-primary {
-            color: var(--primary-color) !important;
+
+        .sidebar-nav-item:hover {
+            background: var(--bg-sidebar-hover);
+            color: white;
+            border-left-color: var(--tanyarat-accent);
         }
-        
-        .text-warning {
-            color: var(--accent-color) !important;
+
+        .sidebar-nav-item.active {
+            background: var(--bg-sidebar-hover);
+            color: white;
+            border-left-color: var(--tanyarat-accent);
         }
-        
-        .bs-icon-primary {
-            background-color: var(--primary-color) !important;
+
+        .sidebar-nav-item i {
+            width: 22px;
+            text-align: center;
+            font-size: 1.1rem;
         }
-        
-        .bg-primary-gradient {
-            background: linear-gradient(180deg, var(--secondary-color) 0%, #ffffff 100%);
+
+        .sidebar-nav-item span {
+            font-size: 0.95rem;
+            font-weight: 500;
         }
-        
-        .navbar {
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-        }
-        
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            margin-bottom: 20px;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        
-        header {
-            background-color: var(--primary-color);
-            color: #fff;
-        }
-        
-        .nav-link {
-            color: #fff;
-        }
-        
-        .nav-link:hover {
-            color: var(--secondary-color);
-        }
-        
-        .dashboard-card {
+
+        /* ==================== MAIN CONTENT ==================== */
+        .admin-main {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
             transition: all 0.3s ease;
         }
-        
-        .dashboard-card:hover {
-            transform: translateY(-5px);
+
+        /* Top Header */
+        .admin-header {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        
-        .section-container {
-            background-color: #fff;
+
+        .admin-header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-header-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .admin-header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-icon-btn {
+            width: 40px;
+            height: 40px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            padding: 20px;
-        }
-        
-        .section-header {
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-            color: var(--primary-color);
-        }
-        
-        .table {
-            color: var(--text-color);
-        }
-        
-        .table thead th {
-            border-bottom: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 15px 10px;
-        }
-        
-        .btn-outline-primary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-            border-width: 2px;
-        }
-        
-        .btn-outline-primary:hover, .btn-outline-primary.active {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            color: #fff;
-        }
-        
-        /* Accessibility toggle */
-        .accessibility-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            background-color: #fff;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
+            border: none;
+            background: var(--tanyarat-secondary);
+            color: var(--tanyarat-primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            border: 2px solid var(--primary-color);
-            font-size: 24px;
-            color: var(--primary-color);
             cursor: pointer;
+            transition: all 0.3s ease;
         }
-        
-        /* Pagination larger buttons */
-        .senior-friendly .page-link {
-            padding: 12px 18px;
-            font-size: 18px;
+
+        .header-icon-btn:hover {
+            background: var(--tanyarat-primary);
+            color: white;
+        }
+
+        .admin-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid var(--tanyarat-accent);
+        }
+
+        /* ==================== CONTENT AREA ==================== */
+        .admin-content {
+            padding: 30px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, transparent 50%, rgba(122, 98, 74, 0.05) 50%);
+            border-radius: 0 16px 0 0;
+        }
+
+        .stat-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon.primary {
+            background: #f8f5f1;
+            color: var(--tanyarat-primary);
+        }
+
+        .stat-icon.success {
+            background: #e8f5e9;
+            color: var(--success);
+        }
+
+        .stat-icon.warning {
+            background: #fff8e1;
+            color: var(--warning);
+        }
+
+        .stat-icon.info {
+            background: #e3f2fd;
+            color: var(--info);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .stat-trend {
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        .stat-trend.up {
+            color: var(--success);
+        }
+
+        .stat-trend.down {
+            color: var(--danger);
+        }
+
+        /* Content Cards */
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .content-card-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .content-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .content-card-body {
+            padding: 25px;
+        }
+
+        /* Tables */
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th {
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .admin-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .admin-table tr:hover {
+            background: #faf7f4;
+        }
+
+        .admin-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-badge.pending {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-badge.processing {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-badge.shipped {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .status-badge.delivered {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-badge.cancelled {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        /* Buttons */
+        .btn-tanyarat {
+            background: var(--tanyarat-primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-tanyarat:hover {
+            background: var(--tanyarat-accent);
+            color: white;
+        }
+
+        .btn-tanyarat-outline {
+            background: transparent;
+            color: var(--tanyarat-primary);
+            border: 2px solid var(--tanyarat-primary);
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-tanyarat-outline:hover {
+            background: var(--tanyarat-primary);
+            color: white;
+        }
+
+        /* Forms */
+        .admin-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .admin-input:focus {
+            outline: none;
+            border-color: var(--tanyarat-primary);
+            box-shadow: 0 0 0 3px rgba(122, 98, 74, 0.1);
+        }
+
+        .admin-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* ==================== LOGIN PAGE ==================== */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--tanyarat-secondary) 0%, #e8e0d8 100%);
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 420px;
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .login-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 35px;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--tanyarat-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background: var(--tanyarat-accent);
+            transform: translateY(-2px);
+        }
+
+        .login-error {
+            background: #ffebee;
+            color: #d32f2f;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+
+            .admin-main {
+                margin-left: 0;
+            }
+
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-content {
+                padding: 15px;
+            }
+
+            .admin-header {
+                padding: 12px 15px;
+            }
+        }
+
+        /* Utility */
+        .d-none {
+            display: none !important;
+        }
+
+        .mobile-toggle {
+            display: none;
         }
     </style>
 </head>
-<body class="senior-friendly">
-    <div class="accessibility-toggle" id="accessibilityToggle" role="button" aria-label="ตัวเลือกการมองเห็น">
-        <i class="fa fa-eye"></i>
+
+<body>
+    <!-- Login Section -->
+    <div id="loginSection">
+        <div class="login-container">
+            <div class="login-card">
+                <img src="assets/img/team/S__9469964_0.jpg" alt="TANYARAT" class="login-logo">
+                <h1 class="login-title">TANYARAT</h1>
+                <p class="login-subtitle">Admin Dashboard</p>
+
+                <div id="loginError" class="login-error d-none"></div>
+
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label class="admin-label">อีเมล</label>
+                        <input type="email" id="username" class="admin-input" placeholder="admin@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="admin-label">รหัสผ่าน</label>
+                        <input type="password" id="password" class="admin-input" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="login-btn">
+                        <i class="fa fa-sign-in me-2"></i> เข้าสู่ระบบ
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <nav class="navbar navbar-expand-md sticky-top navbar-shrink py-3" id="mainNav" style="background-color: var(--primary-color);">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="/">
-                <span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon" style="background-color: #fff !important;">
-                    <img class="rounded-circle flex-shrink-0 me-3 fit-cover" width="40" height="40" src="assets/img/team/S__9469964_0.jpg" alt="โลโก้ร้าน">
-                </span>
-                <span style="font-weight: 600; letter-spacing: 1px; color: #fff; font-size: 22px;">TANYARAT ADMIN</span>
-            </a>
-            <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1" aria-label="เปิด/ปิดเมนู">
-                <span class="visually-hidden">Toggle navigation</span>
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navcol-1">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link text-white" href="#overview">ภาพรวม</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#products">จัดการสินค้า</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#orders">จัดการคำสั่งซื้อ</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#contacts">ข้อความติดต่อ</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#users">จัดการผู้ใช้</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#payments">ช่องทางชำระเงิน</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#settings">ตั้งค่า</a></li>
-                </ul>
-                <a class="btn shadow" role="button" href="/" style="background-color: #fff; color: var(--primary-color); font-size: 18px; padding: 10px 15px;">
-                    <i class="fa fa-home me-2"></i>หน้าหลัก
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="d-none">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="sidebar-brand">
+                <img src="assets/img/team/S__9469964_0.jpg" alt="TANYARAT">
+                <div>
+                    <div class="sidebar-brand-text">TANYARAT</div>
+                    <div class="sidebar-brand-subtitle">Admin Panel</div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">เมนูหลัก</div>
+                <a href="#" class="sidebar-nav-item active" data-section="overview">
+                    <i class="fa fa-th-large"></i>
+                    <span>ภาพรวม</span>
                 </a>
-            </div>
-        </div>
-    </nav>
+                <a href="#" class="sidebar-nav-item" data-section="products">
+                    <i class="fa fa-shopping-bag"></i>
+                    <span>จัดการสินค้า</span>
+                </a>
+                <a href="#" class="sidebar-nav-item" data-section="orders">
+                    <i class="fa fa-cube"></i>
+                    <span>จัดการออเดอร์</span>
+                </a>
+                <a href="#" class="sidebar-nav-item" data-section="contacts">
+                    <i class="fa fa-envelope"></i>
+                    <span>ข้อความติดต่อ</span>
+                </a>
 
-    <!-- Login Form Section -->
-    <div class="container my-5" id="login-section">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="card p-4">
-                    <h2 class="text-center mb-4" style="color: var(--primary-color); font-size: 32px;">Admin Login</h2>
-                    <form id="admin-login-form">
-                        <div class="mb-4">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" required aria-describedby="username-help">
-                            <div id="username-help" class="form-text">กรุณากรอกชื่อผู้ใช้งาน</div>
-                        </div>
-                        <div class="mb-4">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" required aria-describedby="password-help">
-                            <div id="password-help" class="form-text">กรุณากรอกรหัสผ่าน</div>
-                        </div>
-                        <div id="login-error" class="alert alert-danger d-none" role="alert">
-                            Invalid username or password.
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 py-3">Login</button>
-                    </form>
+                <div class="nav-section-title">การจัดการ</div>
+                <a href="#" class="sidebar-nav-item" data-section="users">
+                    <i class="fa fa-users"></i>
+                    <span>จัดการผู้ใช้</span>
+                </a>
+                <a href="#" class="sidebar-nav-item" data-section="payments">
+                    <i class="fa fa-credit-card"></i>
+                    <span>ช่องทางชำระเงิน</span>
+                </a>
+                <a href="#" class="sidebar-nav-item" data-section="settings">
+                    <i class="fa fa-cog"></i>
+                    <span>ตั้งค่า</span>
+                </a>
+
+                <div class="nav-section-title">อื่นๆ</div>
+                <a href="#" class="sidebar-nav-item" id="logoutBtn">
+                    <i class="fa fa-sign-out"></i>
+                    <span>ออกจากระบบ</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <div class="admin-header-left">
+                    <button class="header-icon-btn mobile-toggle" id="sidebarToggle">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <h1 class="admin-header-title" id="pageTitle">ภาพรวม</h1>
                 </div>
+                <div class="admin-header-right">
+                    <button class="header-icon-btn" title="การแจ้งเตือน">
+                        <i class="fa fa-bell"></i>
+                    </button>
+                    <button class="header-icon-btn" title="ตั้งค่า">
+                        <i class="fa fa-cog"></i>
+                    </button>
+                    <img src="assets/img/team/S__9469964_0.jpg" alt="Admin" class="admin-avatar">
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="admin-content">
+                <!-- Overview Section -->
+                <section id="overviewSection" class="admin-section">
+                    <!-- Stats -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon primary">
+                                <i class="fa fa-dollar"></i>
+                            </div>
+                            <div class="stat-value" id="statSales">฿0</div>
+                            <div class="stat-label">ยอดขายทั้งหมด</div>
+                            <div class="stat-trend up"><i class="fa fa-arrow-up"></i> 12.5% จากเดือนที่แล้ว</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon success">
+                                <i class="fa fa-shopping-cart"></i>
+                            </div>
+                            <div class="stat-value" id="statOrders">0</div>
+                            <div class="stat-label">ออเดอร์ทั้งหมด</div>
+                            <div class="stat-trend up"><i class="fa fa-arrow-up"></i> 8.2% จากเดือนที่แล้ว</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon warning">
+                                <i class="fa fa-envelope"></i>
+                            </div>
+                            <div class="stat-value" id="statContacts">0</div>
+                            <div class="stat-label">ข้อความติดต่อ</div>
+                            <div class="stat-trend down"><i class="fa fa-arrow-down"></i> 3.1% จากเดือนที่แล้ว</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon info">
+                                <i class="fa fa-users"></i>
+                            </div>
+                            <div class="stat-value" id="statUsers">0</div>
+                            <div class="stat-label">ผู้ใช้ทั้งหมด</div>
+                            <div class="stat-trend up"><i class="fa fa-arrow-up"></i> 15.7% จากเดือนที่แล้ว</div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Orders -->
+                    <div class="content-card">
+                        <div class="content-card-header">
+                            <h2 class="content-card-title">
+                                <i class="fa fa-clock-o me-2"></i> ออเดอร์ล่าสุด
+                            </h2>
+                            <a href="#" class="btn-tanyarat-outline" data-section="orders">ดูทั้งหมด <i
+                                    class="fa fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="content-card-body">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>หมายเลข</th>
+                                        <th>ลูกค้า</th>
+                                        <th>สถานะ</th>
+                                        <th>ยอดรวม</th>
+                                        <th>วันที่</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentOrdersBody">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">กำลังโหลด...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Products Section -->
+                <section id="productsSection" class="admin-section d-none">
+                    <div class="content-card">
+                        <div class="content-card-header">
+                            <h2 class="content-card-title">
+                                <i class="fa fa-shopping-bag me-2"></i> รายการสินค้า
+                            </h2>
+                            <button class="btn-tanyarat" id="addProductBtn">
+                                <i class="fa fa-plus me-2"></i> เพิ่มสินค้าใหม่
+                            </button>
+                        </div>
+                        <div class="content-card-body" id="productsContainer">
+                            <p class="text-center py-4">กำลังโหลด...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Orders Section -->
+                <section id="ordersSection" class="admin-section d-none">
+                    <div class="content-card">
+                        <div class="content-card-header">
+                            <h2 class="content-card-title">
+                                <i class="fa fa-cube me-2"></i> รายการออเดอร์
+                            </h2>
+                        </div>
+                        <div class="content-card-body" id="ordersContainer">
+                            <p class="text-center py-4">กำลังโหลด...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Contacts Section -->
+                <section id="contactsSection" class="admin-section d-none">
+                    <div class="content-card">
+                        <div class="content-card-header">
+                            <h2 class="content-card-title">
+                                <i class="fa fa-envelope me-2"></i> ข้อความติดต่อ
+                            </h2>
+                        </div>
+                        <div class="content-card-body" id="contactsContainer">
+                            <p class="text-center py-4">กำลังโหลด...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Users Section -->
+                <section id="usersSection" class="admin-section d-none">
+                    <div class="content-card">
+                        <div class="content-card-header">
+                            <h2 class="content-card-title">
+                                <i class="fa fa-users me-2"></i> รายการผู้ใช้
+                            </h2>
+                        </div>
+                        <div class="content-card-body" id="usersContainer">
+                            <p class="text-center py-4">กำลังโหลด...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Payments Section -->
+                <section id="paymentsSection" class="admin-section d-none">
+                    <div class="content-card">
+                        <div class="content-card-header">
+                            <h2 class="content-card-title">
+                                <i class="fa fa-credit-card me-2"></i> ช่องทางชำระเงิน
+                            </h2>
+                        </div>
+                        <div class="content-card-body" id="paymentsContainer">
+                            <p class="text-center py-4">การตั้งค่าช่องทางชำระเงิน</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settingsSection" class="admin-section d-none">
+                    <div class="content-card">
+                        <div class="content-card-header">
+                            <h2 class="content-card-title">
+                                <i class="fa fa-cog me-2"></i> ตั้งค่าระบบ
+                            </h2>
+                        </div>
+                        <div class="content-card-body">
+                            <p class="text-center py-4">หน้าตั้งค่า</p>
+                        </div>
+                    </div>
+                </section>
             </div>
-        </div>
+        </main>
     </div>
 
-    <!-- Dashboard Content (Hidden by default) -->
-    <main class="container my-4 d-none" id="dashboard-content">
-        <div class="py-4">
-            <h1 class="fw-bold mb-3" style="color: var(--primary-color);">Admin Dashboard</h1>
-            <p class="text-muted" style="font-size: 20px;">จัดการร้านค้าและสินค้าของคุณได้ที่นี่</p>
-        </div>
-        
-        <section id="overview" class="mb-4 p-4 bg-white rounded shadow-sm section-container">
-            <h2 class="section-header fw-bold">ภาพรวมระบบ</h2>
-            <div class="row">
-                <div class="col-md-3 mb-3">
-                    <div class="card dashboard-card text-white" style="background-color: var(--primary-color);">
-                        <div class="card-body p-4">
-                            <h5 class="card-title mb-3">ยอดขายวันนี้</h5>
-                            <p class="card-text h3" id="todaySales" style="font-size: 32px;">0 บาท</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="card dashboard-card text-white" style="background-color: var(--accent-color);">
-                        <div class="card-body p-4">
-                            <h5 class="card-title mb-3">คำสั่งซื้อใหม่</h5>
-                            <p class="card-text h3" id="newOrders" style="font-size: 32px;">0</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="card dashboard-card" style="background-color: var(--secondary-color); color: var(--text-color);">
-                        <div class="card-body p-4">
-                            <h5 class="card-title mb-3">ข้อความติดต่อใหม่</h5>
-                            <p class="card-text h3" id="newContacts" style="font-size: 32px;">0</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="card dashboard-card text-white" style="background-color: var(--primary-color); opacity: 0.8;">
-                        <div class="card-body p-4">
-                            <h5 class="card-title mb-3">ผู้ใช้ทั้งหมด</h5>
-                            <p class="card-text h3" id="totalUsers" style="font-size: 32px;">0</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="products" class="mb-4 p-4 bg-white rounded shadow-sm section-container">
-            <h2 class="section-header fw-bold">จัดการสินค้า</h2>
-            <div class="d-flex justify-content-end mb-3">
-                <button class="btn btn-primary"><i class="fas fa-plus me-1"></i> เพิ่มสินค้าใหม่</button>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover" id="productsTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>รูปภาพ</th>
-                            <th>ชื่อสินค้า</th>
-                            <th>ราคา</th>
-                            <th>คงเหลือ</th>
-                            <th>หมวดหมู่</th>
-                            <th>สถานะ</th>
-                            <th>การจัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Product data will be loaded dynamically -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="orders" class="mb-4 p-4 bg-white rounded shadow-sm section-container">
-            <h2 class="section-header fw-bold">จัดการคำสั่งซื้อ</h2>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover" id="ordersTable">
-                    <thead>
-                        <tr>
-                            <th>เลขที่ออเดอร์</th>
-                            <th>วันที่</th>
-                            <th>ลูกค้า</th>
-                            <th>ยอดรวม</th>
-                            <th>สถานะ</th>
-                            <th>การจัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Order data will be loaded dynamically -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="contacts" class="mb-4 p-4 bg-white rounded shadow-sm section-container">
-            <h2 class="section-header fw-bold">ข้อความติดต่อ</h2>
-            <div class="mb-3">
-                <div class="btn-group">
-                    <button class="btn btn-outline-primary active" data-filter="all">ทั้งหมด</button>
-                    <button class="btn btn-outline-primary" data-filter="unread">ยังไม่ได้อ่าน</button>
-                    <button class="btn btn-outline-primary" data-filter="pending">รอดำเนินการ</button>
-                    <button class="btn btn-outline-primary" data-filter="processed">กำลังดำเนินการ</button>
-                    <button class="btn btn-outline-primary" data-filter="completed">เสร็จสิ้น</button>
-                </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover" id="contactsTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>วันที่</th>
-                            <th>ชื่อผู้ติดต่อ</th>
-                            <th>Line ID</th>
-                            <th>ข้อความ</th>
-                            <th>สถานะ</th>
-                            <th>การจัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Contact data will be loaded dynamically -->
-                        <tr>
-                            <td colspan="7" class="text-center">กำลังโหลดข้อมูล...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div id="contactsPagination" class="mt-3 d-flex justify-content-center">
-                <!-- Pagination will be loaded dynamically -->
-            </div>
-        </section>
-
-        <section id="users" class="mb-4 p-4 bg-white rounded shadow-sm section-container">
-            <h2 class="section-header fw-bold">จัดการผู้ใช้</h2>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover" id="usersTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>ชื่อ</th>
-                            <th>อีเมล</th>
-                            <th>สถานะ</th>
-                            <th>บทบาท</th>
-                            <th>วันที่สมัคร</th>
-                            <th>การจัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- User data will be loaded dynamically -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
-        
-        <section id="payments" class="mb-4 p-4 bg-white rounded shadow-sm section-container">
-            <h2 class="section-header fw-bold">ช่องทางชำระเงิน</h2>
-            <form id="paymentSettingsForm">
-                <!-- PromptPay Settings -->
-                <div class="card mb-3">
-                    <div class="card-header d-flex justify-content-between align-items-center" style="background-color: var(--secondary-color);">
-                        <h5 class="mb-0 text-primary">พร้อมเพย์</h5>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="promptpayEnabled" checked>
-                            <label class="form-check-label" for="promptpayEnabled">เปิดใช้งาน</label>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="promptpayNumber" class="form-label">เบอร์โทรศัพท์/หมายเลขพร้อมเพย์</label>
-                                    <input type="text" class="form-control" id="promptpayNumber" placeholder="0812345678">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="promptpayName" class="form-label">ชื่อบัญชี</label>
-                                    <input type="text" class="form-control" id="promptpayName" placeholder="ชื่อร้าน/ชื่อบริษัท">
-                                </div>
-                            </div>
-                            <div class="col-md-6 d-flex justify-content-center align-items-center">
-                                <div class="text-center">
-                                    <div id="promptpayQRPreview" class="mb-2">
-                                        <img src="assets/img/qr-code-placeholder.png" alt="PromptPay QR Code" class="img-fluid" style="max-width: 200px;">
-                                    </div>
-                                    <button type="button" class="btn btn-sm btn-primary" id="generateQRBtn">สร้าง QR Code ตัวอย่าง</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Bank Transfer Settings -->
-                <div class="card mb-3">
-                    <div class="card-header d-flex justify-content-between align-items-center" style="background-color: var(--secondary-color);">
-                        <h5 class="mb-0 text-primary">โอนเงินผ่านธนาคาร</h5>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="bankTransferEnabled" checked>
-                            <label class="form-check-label" for="bankTransferEnabled">เปิดใช้งาน</label>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="bankName" class="form-label">ธนาคาร</label>
-                                    <select class="form-select" id="bankName">
-                                        <option value="kasikorn">ธนาคารกสิกรไทย</option>
-                                        <option value="krungthai">ธนาคารกรุงไทย</option>
-                                        <option value="bangkok">ธนาคารกรุงเทพ</option>
-                                        <option value="scb">ธนาคารไทยพาณิชย์</option>
-                                        <option value="krungsri">ธนาคารกรุงศรีอยุธยา</option>
-                                        <option value="ttb">ธนาคารทหารไทยธนชาต</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="bankAccountNumber" class="form-label">เลขที่บัญชี</label>
-                                    <input type="text" class="form-control" id="bankAccountNumber" placeholder="xxx-x-xxxxx-x">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="bankAccountName" class="form-label">ชื่อบัญชี</label>
-                                    <input type="text" class="form-control" id="bankAccountName" placeholder="ชื่อบัญชีธนาคาร">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="alert alert-info">
-                                    <p class="mb-0">ข้อมูลบัญชีธนาคารจะถูกแสดงในหน้าชำระเงินและหน้าแสดงข้อมูลการสั่งซื้อ</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Cash on Delivery Settings -->
-                <div class="card mb-3">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">เก็บเงินปลายทาง</h5>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="codEnabled" checked>
-                            <label class="form-check-label" for="codEnabled">เปิดใช้งาน</label>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="codFee" class="form-label">ค่าธรรมเนียมเก็บเงินปลายทาง (บาท)</label>
-                                    <input type="number" class="form-control" id="codFee" min="0" step="1" value="30">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="alert alert-info">
-                                    <p class="mb-0">ค่าธรรมเนียมจะถูกเพิ่มเข้าไปในยอดรวมเมื่อลูกค้าเลือกการชำระเงินแบบเก็บเงินปลายทาง</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Credit Card Settings -->
-                <div class="card mb-3">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">บัตรเครดิต/เดบิต (อยู่ระหว่างพัฒนา)</h5>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="creditCardEnabled">
-                            <label class="form-check-label" for="creditCardEnabled">เปิดใช้งาน</label>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="paymentGateway" class="form-label">ผู้ให้บริการ</label>
-                                    <select class="form-select" id="paymentGateway" disabled>
-                                        <option value="stripe">Stripe</option>
-                                        <option value="omise">Omise</option>
-                                        <option value="2c2p">2C2P</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="merchantId" class="form-label">Merchant ID</label>
-                                    <input type="text" class="form-control" id="merchantId" disabled>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="apiKey" class="form-label">API Key</label>
-                                    <input type="password" class="form-control" id="apiKey" disabled>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="alert alert-warning">
-                                    <p class="mb-0">การชำระเงินด้วยบัตรเครดิต/เดบิตยังอยู่ในระหว่างการพัฒนา จะเปิดใช้งานในเร็วๆ นี้</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-end">
-                    <button type="submit" class="btn btn-primary" id="savePaymentSettings">บันทึกการตั้งค่า</button>
-                </div>
-            </form>
-        </section>
-    </main>
-
-    <!-- Add/Edit Product Modal -->
-    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <!-- Product Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="productModalLabel">เพิ่ม/แก้ไข สินค้า</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content" style="border-radius: 16px;">
+                <div class="modal-header" style="border-bottom: 1px solid #f0f0f0;">
+                    <h5 class="modal-title" id="productModalLabel">เพิ่มสินค้าใหม่</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 25px;">
+                    <div id="productFormError" class="alert alert-danger d-none"></div>
                     <form id="productForm">
-                        <input type="hidden" id="productId"> <!-- Hidden field for storing ID when editing -->
+                        <input type="hidden" id="productId">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="productName" class="form-label">ชื่อสินค้า *</label>
-                                <input type="text" class="form-control" id="productName" required>
+                                <label class="admin-label">ชื่อสินค้า *</label>
+                                <input type="text" class="admin-input" id="productName" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="productCategory" class="form-label">หมวดหมู่</label>
-                                <input type="text" class="form-control" id="productCategory">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="productPrice" class="form-label">ราคา (บาท) *</label>
-                                <input type="number" class="form-control" id="productPrice" min="0" step="0.01" required>
+                                <label class="admin-label">หมวดหมู่</label>
+                                <input type="text" class="admin-input" id="productCategory">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="productStock" class="form-label">จำนวนคงเหลือ *</label>
-                                <input type="number" class="form-control" id="productStock" min="0" step="1" required>
+                                <label class="admin-label">ราคา (บาท) *</label>
+                                <input type="number" class="admin-input" id="productPrice" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="admin-label">จำนวนในคลัง</label>
+                                <input type="number" class="admin-input" id="productStock" value="0">
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="admin-label">URL รูปภาพ</label>
+                                <input type="url" class="admin-input" id="productImageUrl">
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="admin-label">รายละเอียดสินค้า</label>
+                                <textarea class="admin-input" id="productDescription" rows="4"></textarea>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="productImageUrl" class="form-label">URL รูปภาพ</label>
-                            <input type="text" class="form-control" id="productImageUrl" placeholder="e.g., assets/img/products/new_product.jpg">
-                        </div>
-                        <div class="mb-3">
-                            <label for="productDescription" class="form-label">คำอธิบายสินค้า</label>
-                            <textarea class="form-control" id="productDescription" rows="3"></textarea>
-                        </div>
-                        <div id="productFormError" class="alert alert-danger d-none" role="alert"></div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button type="button" class="btn btn-primary" id="saveProductBtn">บันทึก</button>
+                <div class="modal-footer" style="border-top: 1px solid #f0f0f0;">
+                    <button type="button" class="btn-tanyarat-outline" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn-tanyarat" id="saveProductBtn">บันทึก</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="text-center py-4" style="background-color: var(--primary-color); color: #fff;">
-        <div class="container">
-            <p class="mb-0" style="font-size: 18px;">© 2025 Tanyarat Admin Panel. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <!-- Bootstrap JS and dependencies -->
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <!-- Custom admin scripts -->
     <script src="assets/js/admin.js?v=2.0"></script>
-    <!-- Accessibility Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const accessibilityToggle = document.getElementById('accessibilityToggle');
-            const body = document.body;
-            
-            // Check for saved preference
-            const highContrast = localStorage.getItem('highContrast') === 'true';
-            if (highContrast) {
-                body.classList.add('high-contrast');
-                accessibilityToggle.innerHTML = '<i class="fa fa-low-vision"></i>';
-            }
-            
-            accessibilityToggle.addEventListener('click', function() {
-                body.classList.toggle('high-contrast');
-                const isHighContrast = body.classList.contains('high-contrast');
-                
-                if (isHighContrast) {
-                    accessibilityToggle.innerHTML = '<i class="fa fa-low-vision"></i>';
-                    localStorage.setItem('highContrast', 'true');
-                } else {
-                    accessibilityToggle.innerHTML = '<i class="fa fa-eye"></i>';
-                    localStorage.setItem('highContrast', 'false');
-                }
-            });
-        });
-    </script>
 </body>
+
 </html>
