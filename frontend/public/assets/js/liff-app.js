@@ -6,7 +6,7 @@
 // Configuration - เปลี่ยน LIFF_ID เมื่อได้รับจาก LINE Developers
 const LIFF_ID = '2008785286-iV2E6B95';
 const API_BASE_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:4455/api' 
+  ? '/api' 
   : '/api';
 
 // Global state

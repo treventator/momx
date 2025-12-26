@@ -8,7 +8,8 @@ const cookieParser = require('cookie-parser');
 const { errorHandler } = require('./utils/errors');
 
 // Load environment variables
-dotenv.config({ path: './config/.env' });
+// Load environment variables (support both local and Docker environments)
+dotenv.config();
 
 // Create Express application
 const app = express();
@@ -86,9 +87,9 @@ const connectDB = async () => {
   try {
     // Set up mongoose tracing before connecting
     setupMongooseTracing(mongoose);
-    
+
     await withSpan('database.connect', async () => {
-      await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/tanyarat_shop');
+      await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/momx_shop');
       info('MongoDB connected successfully');
     }, { 'db.system': 'mongodb', 'db.name': 'tanyarat_shop' });
   } catch (err) {
@@ -138,8 +139,8 @@ app.use(`${apiPrefix}/webhooks`, require('./routes/webhookRoutes'));
 // Health check endpoints
 // Root level health check for Docker
 app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    success: true, 
+  res.status(200).json({
+    success: true,
     message: 'API is healthy',
     timestamp: new Date(),
     environment: process.env.NODE_ENV || 'development',
@@ -149,8 +150,8 @@ app.get('/health', (req, res) => {
 
 // API level health check
 app.get(`${apiPrefix}/health`, (req, res) => {
-  res.status(200).json({ 
-    success: true, 
+  res.status(200).json({
+    success: true,
     message: 'API is running',
     timestamp: new Date(),
     environment: process.env.NODE_ENV || 'development',
@@ -164,9 +165,9 @@ app.use((req, res, next) => {
     method: req.method,
     path: req.originalUrl
   });
-  
-  res.status(404).json({ 
-    success: false, 
+
+  res.status(404).json({
+    success: false,
     error: {
       message: 'ไม่พบ API ที่ต้องการเรียกใช้งาน',
       code: 'NOT_FOUND'
@@ -185,16 +186,16 @@ app.listen(PORT, () => {
     environment: process.env.NODE_ENV || 'development',
     nodeVersion: process.version
   });
-  
+
   info(`Environment: ${process.env.NODE_ENV || 'development'}`);
   info(`API Documentation: http://localhost:${PORT}/api/docs`);
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
-  error('Unhandled Promise Rejection', { 
-    error: err.message, 
-    stack: err.stack 
+  error('Unhandled Promise Rejection', {
+    error: err.message,
+    stack: err.stack
   });
   // Close server & exit process
   // server.close(() => process.exit(1));

@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showLoading(true);
             
             // Fetch product data
-            const response = await fetch(`http://localhost:4455/api/products/${productId}`);
+            const response = await fetch(`/api/products/${productId}`);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
             relatedProductsLoading.style.display = 'block';
             
             // Fetch related products (products in the same category, excluding current product)
-            const response = await fetch(`http://localhost:4455/api/products?category=${categoryId}&limit=4`);
+            const response = await fetch(`/api/products?category=${categoryId}&limit=4`);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

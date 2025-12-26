@@ -13,25 +13,37 @@ router.post('/line', express.raw({ type: 'application/json' }), async (req, res)
   try {
     // Get signature from header
     const signature = req.headers['x-line-signature'];
-    
-    // Verify signature
     const body = req.body.toString();
-    if (!lineBotService.verifySignature(body, signature)) {
+
+    // Parse body first to check if it's a verification request
+    let webhookData;
+    try {
+      webhookData = JSON.parse(body || '{}');
+    } catch {
+      webhookData = { events: [] };
+    }
+
+    const events = webhookData.events || [];
+
+    // If no events (verification request from LINE), return 200 immediately
+    if (events.length === 0) {
+      info('LINE webhook verification request received');
+      return res.status(200).json({ success: true, message: 'Webhook verified' });
+    }
+
+    // Verify signature for actual webhook events
+    if (!signature || !lineBotService.verifySignature(body, signature)) {
       error('Invalid LINE webhook signature');
       return res.status(401).json({ message: 'Invalid signature' });
     }
-    
-    // Parse body
-    const webhookData = JSON.parse(body);
-    const events = webhookData.events || [];
-    
+
     info(`Received ${events.length} LINE webhook events`);
-    
+
     // Process each event
     for (const event of events) {
       await handleLineEvent(event);
     }
-    
+
     // Always return 200 to LINE
     res.status(200).json({ success: true });
   } catch (err) {
@@ -48,30 +60,30 @@ router.post('/line', express.raw({ type: 'application/json' }), async (req, res)
 async function handleLineEvent(event) {
   const { type, source, replyToken, message } = event;
   const userId = source?.userId;
-  
+
   info(`Processing LINE event: ${type}`, { userId });
-  
+
   switch (type) {
     case 'follow':
       // ผู้ใช้ add friend หรือ unblock
       await handleFollowEvent(userId, replyToken);
       break;
-      
+
     case 'unfollow':
       // ผู้ใช้ block bot
       await handleUnfollowEvent(userId);
       break;
-      
+
     case 'message':
       // ผู้ใช้ส่งข้อความ
       await handleMessageEvent(userId, message, replyToken);
       break;
-      
+
     case 'postback':
       // ผู้ใช้กดปุ่มใน Flex Message
       await handlePostbackEvent(userId, event.postback, replyToken);
       break;
-      
+
     default:
       info(`Unhandled event type: ${type}`);
   }
@@ -84,17 +96,17 @@ async function handleFollowEvent(userId, replyToken) {
   try {
     // Get user profile from LINE
     const profileResult = await lineBotService.getProfile(userId);
-    
+
     if (!profileResult.success) {
       error('Failed to get LINE profile on follow', { userId });
       return;
     }
-    
+
     const { displayName, pictureUrl, statusMessage } = profileResult.profile;
-    
+
     // Check if user already exists
     let user = await User.findOne({ 'lineProfile.lineUserId': userId });
-    
+
     if (!user) {
       // Create new user
       user = await User.create({
@@ -108,7 +120,7 @@ async function handleFollowEvent(userId, replyToken) {
         firstName: displayName,
         isActive: true
       });
-      
+
       info(`New user registered via follow: ${userId}`, { displayName });
     } else {
       // Update profile
@@ -117,13 +129,13 @@ async function handleFollowEvent(userId, replyToken) {
       user.lineProfile.statusMessage = statusMessage;
       user.isActive = true;
       await user.save();
-      
+
       info(`Existing user followed again: ${userId}`);
     }
-    
+
     // Send welcome message
     await lineBotService.sendWelcomeMessage(userId, displayName);
-    
+
   } catch (err) {
     error('Error handling follow event', { error: err.message, userId });
   }
@@ -139,7 +151,7 @@ async function handleUnfollowEvent(userId) {
       { 'lineProfile.lineUserId': userId },
       { isActive: false }
     );
-    
+
     info(`User unfollowed: ${userId}`);
   } catch (err) {
     error('Error handling unfollow event', { error: err.message, userId });
@@ -152,7 +164,7 @@ async function handleUnfollowEvent(userId) {
 async function handleMessageEvent(userId, message, replyToken) {
   try {
     const { type, text } = message;
-    
+
     if (type !== 'text') {
       // Reply for non-text messages
       await lineBotService.replyMessage(replyToken, {
@@ -161,10 +173,10 @@ async function handleMessageEvent(userId, message, replyToken) {
       });
       return;
     }
-    
+
     // Process text commands
     const lowerText = text.toLowerCase().trim();
-    
+
     // Command handlers
     if (lowerText === 'สินค้า' || lowerText === 'shop') {
       await replyShopMenu(replyToken);
@@ -174,6 +186,8 @@ async function handleMessageEvent(userId, message, replyToken) {
       await replyAccountMenu(replyToken, userId);
     } else if (lowerText === 'ออเดอร์' || lowerText === 'order' || lowerText === 'คำสั่งซื้อ') {
       await replyOrderStatus(replyToken, userId);
+    } else if (lowerText === 'แต้มสะสม' || lowerText === 'points' || lowerText === 'แต้ม') {
+      await replyPointsStatus(replyToken, userId);
     } else if (lowerText === 'help' || lowerText === 'ช่วยเหลือ' || lowerText === 'เมนู') {
       await replyHelpMenu(replyToken);
     } else {
@@ -196,9 +210,9 @@ async function handlePostbackEvent(userId, postback, replyToken) {
     const data = postback.data;
     const params = new URLSearchParams(data);
     const action = params.get('action');
-    
+
     info(`Postback action: ${action}`, { userId });
-    
+
     switch (action) {
       case 'view_orders':
         await replyOrderStatus(replyToken, userId);
@@ -276,7 +290,7 @@ async function replyShopMenu(replyToken) {
       }
     }
   };
-  
+
   await lineBotService.replyMessage(replyToken, message);
 }
 
@@ -369,7 +383,7 @@ async function replyContactInfo(replyToken) {
       }
     }
   };
-  
+
   await lineBotService.replyMessage(replyToken, message);
 }
 
@@ -428,7 +442,7 @@ async function replyAccountMenu(replyToken, userId) {
       }
     }
   };
-  
+
   await lineBotService.replyMessage(replyToken, message);
 }
 
@@ -439,7 +453,7 @@ async function replyOrderStatus(replyToken, userId) {
   try {
     // Find user's orders (implement your order lookup logic)
     const user = await User.findOne({ 'lineProfile.lineUserId': userId });
-    
+
     if (!user) {
       await lineBotService.replyMessage(replyToken, {
         type: 'text',
@@ -447,7 +461,7 @@ async function replyOrderStatus(replyToken, userId) {
       });
       return;
     }
-    
+
     // TODO: Implement actual order lookup
     await lineBotService.replyMessage(replyToken, {
       type: 'text',
@@ -455,6 +469,108 @@ async function replyOrderStatus(replyToken, userId) {
     });
   } catch (err) {
     error('Error getting order status', { error: err.message });
+    await lineBotService.replyMessage(replyToken, {
+      type: 'text',
+      text: 'ขออภัยค่ะ เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง'
+    });
+  }
+}
+
+/**
+ * Reply with points status
+ */
+async function replyPointsStatus(replyToken, userId) {
+  try {
+    // Find user
+    const user = await User.findOne({ 'lineProfile.lineUserId': userId });
+
+    if (!user) {
+      await lineBotService.replyMessage(replyToken, {
+        type: 'text',
+        text: 'กรุณาเข้าสู่ระบบผ่าน LIFF ก่อนค่ะ'
+      });
+      return;
+    }
+
+    const points = user.points || 0;
+    const pointsValue = Math.floor(points / 100) * 50; // 100 points = 50 baht discount
+
+    const message = {
+      type: 'flex',
+      altText: `⭐ แต้มสะสมของคุณ: ${points} แต้ม`,
+      contents: {
+        type: 'bubble',
+        body: {
+          type: 'box',
+          layout: 'vertical',
+          contents: [
+            {
+              type: 'text',
+              text: '⭐ แต้มสะสมของคุณ',
+              weight: 'bold',
+              size: 'lg',
+              color: '#b88e5e'
+            },
+            {
+              type: 'text',
+              text: points.toLocaleString(),
+              size: 'xxl',
+              weight: 'bold',
+              color: '#FF6B35',
+              align: 'center',
+              margin: 'lg'
+            },
+            {
+              type: 'text',
+              text: 'แต้ม',
+              size: 'sm',
+              color: '#666666',
+              align: 'center'
+            },
+            {
+              type: 'separator',
+              margin: 'lg'
+            },
+            {
+              type: 'text',
+              text: `💰 มูลค่าส่วนลด: ฿${pointsValue.toLocaleString()}`,
+              size: 'sm',
+              color: '#1DB446',
+              margin: 'md',
+              weight: 'bold'
+            },
+            {
+              type: 'text',
+              text: '💡 สะสม 100 แต้ม = ส่วนลด 50 บาท',
+              size: 'xs',
+              color: '#888888',
+              margin: 'sm',
+              wrap: true
+            }
+          ]
+        },
+        footer: {
+          type: 'box',
+          layout: 'vertical',
+          contents: [
+            {
+              type: 'button',
+              action: {
+                type: 'uri',
+                label: '🛍️ ใช้แต้มแลกส่วนลด',
+                uri: `https://liff.line.me/${process.env.LIFF_ID}`
+              },
+              style: 'primary',
+              color: '#b88e5e'
+            }
+          ]
+        }
+      }
+    };
+
+    await lineBotService.replyMessage(replyToken, message);
+  } catch (err) {
+    error('Error getting points status', { error: err.message });
     await lineBotService.replyMessage(replyToken, {
       type: 'text',
       text: 'ขออภัยค่ะ เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง'
@@ -532,7 +648,7 @@ async function replyHelpMenu(replyToken) {
       }
     }
   };
-  
+
   await lineBotService.replyMessage(replyToken, message);
 }
 

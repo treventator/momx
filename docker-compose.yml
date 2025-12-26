@@ -51,7 +51,7 @@ services:
       dockerfile: Dockerfile
     container_name: momx-frontend
     ports:
-      - "8080:80"
+      - "8788:80"  # Changed from 8080 to avoid conflict
     volumes:
       - ./frontend/public:/usr/share/nginx/html:ro
     depends_on:
@@ -67,7 +67,7 @@ services:
     image: mongo:7.0
     container_name: momx-mongo
     ports:
-      - "27017:27017"
+      - "27018:27017"  # Changed external port to avoid conflict
     volumes:
       - mongo-data:/data/db
       - ./docker/mongo-init:/docker-entrypoint-initdb.d:ro

@@ -6,8 +6,8 @@
 # Use Nginx Alpine for smaller image
 FROM nginx:1.25-alpine
 
-# Remove default nginx configuration
-RUN rm /etc/nginx/conf.d/default.conf
+# Install curl for healthcheck and remove default nginx configuration
+RUN apk add --no-cache curl && rm /etc/nginx/conf.d/default.conf
 
 # Copy custom Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
@@ -24,7 +24,7 @@ EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget -q --spider http://localhost:80/ || exit 1
+    CMD curl -f http://localhost:80/ || exit 1
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]

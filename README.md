@@ -700,6 +700,163 @@ docker exec -it momx-redis redis-cli ping
 
 ---
 
+## 🔐 Admin Dashboard
+
+### เข้าใช้งาน Admin Panel
+
+**URL:** `https://your-domain.com/admin.html`
+
+### สร้าง Admin Account
+
+```bash
+# ผ่าน API (Development only)
+curl -X POST https://your-domain.com/api/auth/seed-admin
+```
+
+**Admin Credentials (หลังสร้าง):**
+| Field | Value |
+|-------|-------|
+| Email | `kai@tanyarat.online` |
+| Password | `Kai_[hkog]-muj114174` |
+
+> ⚠️ **สำคัญ:** เปลี่ยนรหัสผ่านหลัง login ครั้งแรก!
+
+### ฟีเจอร์ Admin Dashboard
+
+- 📊 **ภาพรวม** - ยอดขาย, ออเดอร์, ผู้ใช้
+- 🛍️ **จัดการสินค้า** - CRUD สินค้า/หมวดหมู่
+- 📦 **จัดการออเดอร์** - อัพเดทสถานะ, เลขพัสดุ
+- 💬 **ข้อความติดต่อ** - ดู/ตอบกลับข้อความ
+- 👥 **จัดการผู้ใช้** - ดู/แก้ไขสมาชิก
+- 💳 **ช่องทางชำระเงิน** - PromptPay, โอนเงิน, COD
+
+---
+
+## 📱 LINE Rich Menu Setup
+
+### Layout ที่แนะนำ (6 ช่อง)
+
+```
+┌────────────┬────────────┬────────────┐
+│  🛍️ ร้านค้า │  👤 บัญชี   │ 📦 ออเดอร์   │
+├────────────┼────────────┼────────────┤
+│ 🎁 โปรโมชั่น │  ⭐ แต้มสะสม │ 📞 ติดต่อเรา │
+└────────────┴────────────┴────────────┘
+```
+
+### Link Actions
+
+| ปุ่ม | Action Type | Value |
+|------|-------------|-------|
+| ร้านค้า | **URI** | `https://your-domain.com/shop.html` |
+| บัญชี | **URI** | `https://liff.line.me/{LIFF_ID}` |
+| ออเดอร์ | **URI** | `https://liff.line.me/{LIFF_ID}` |
+| โปรโมชั่น | **URI** | `https://your-domain.com/shop.html?promo=1` |
+| แต้มสะสม | **Text** | `แต้มสะสม` |
+| ติดต่อเรา | **URI** | `https://your-domain.com/contacts.html` |
+
+### วิธีสร้าง Rich Menu
+
+1. ไปที่ [LINE Official Account Manager](https://manager.line.biz/)
+2. **Home** → **Rich menus** → **Create**
+3. เลือก Template 2 แถว x 3 คอลัมน์
+4. Upload รูปขนาด **2500x1686 px** หรือ **1200x810 px**
+5. ตั้งค่า Action แต่ละช่องตามตารางด้านบน
+6. **Save** และ **Set as default**
+
+---
+
+## 🌐 Cloudflare Tunnel Deployment
+
+### วิธีตั้งค่า Cloudflare Tunnel
+
+```bash
+# 1. ติดตั้ง cloudflared
+curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+chmod +x cloudflared
+sudo mv cloudflared /usr/local/bin/
+
+# 2. Login to Cloudflare
+cloudflared tunnel login
+
+# 3. สร้าง Tunnel
+cloudflared tunnel create momx-tunnel
+
+# 4. แก้ไข config.yml
+mkdir -p ~/.cloudflared
+nano ~/.cloudflared/config.yml
+```
+
+**config.yml:**
+```yaml
+tunnel: <YOUR_TUNNEL_ID>
+credentials-file: /root/.cloudflared/<YOUR_TUNNEL_ID>.json
+
+ingress:
+  - hostname: liff.tanyarat.online
+    service: http://localhost:8788
+  - hostname: api.tanyarat.online
+    service: http://localhost:4455
+  - service: http_status:404
+```
+
+```bash
+# 5. Route DNS
+cloudflared tunnel route dns momx-tunnel liff.tanyarat.online
+
+# 6. รันเป็น Service
+sudo cloudflared service install
+sudo systemctl start cloudflared
+sudo systemctl enable cloudflared
+```
+
+### Docker Port Mapping สำหรับ Cloudflare Tunnel
+
+```yaml
+# docker-compose.yml
+services:
+  frontend:
+    ports:
+      - "8788:80"  # เปลี่ยนจาก 8080 หาก port ชนกัน
+  backend:
+    ports:
+      - "4455:4455"
+```
+
+---
+
+## 🛒 TANYARAT Shop Configuration
+
+### หน้าเว็บหลัก
+
+| หน้า | URL | รายละเอียด |
+|------|-----|------------|
+| หน้าแรก | `/index.html` | Landing page |
+| ร้านค้า | `/shop.html` | สินค้าทั้งหมด |
+| LIFF App | `/liff.html` | หน้า LINE LIFF |
+| Admin | `/admin.html` | Admin Dashboard |
+| ติดต่อ | `/contacts.html` | ฟอร์มติดต่อ |
+
+### คำสั่ง LINE Bot
+
+| คำสั่ง | การตอบกลับ |
+|--------|-----------|
+| `เมนู` / `help` | แสดงเมนูคำสั่ง |
+| `สินค้า` / `shop` | แสดงลิงก์ร้านค้า |
+| `แต้มสะสม` / `points` | แสดงแต้มสะสมปัจจุบัน |
+| `ออเดอร์` / `order` | แสดงสถานะออเดอร์ |
+| `บัญชี` / `account` | แสดงข้อมูลบัญชี |
+| `ติดต่อ` / `contact` | แสดงข้อมูลติดต่อ |
+
+### LIFF ID
+
+```
+LIFF_ID=2008785286-iV2E6B95
+```
+
+
+---
+
 ## 🤝 Contributing
 
 1. Fork the repository

@@ -39,7 +39,7 @@ exports.replyMessage = async (replyToken, messages) => {
         }
       }
     );
-    
+
     info('Reply message sent successfully');
     return { success: true, data: response.data };
   } catch (err) {
@@ -68,7 +68,7 @@ exports.pushMessage = async (userId, messages) => {
         }
       }
     );
-    
+
     info(`Push message sent to ${userId}`);
     return { success: true, data: response.data };
   } catch (err) {
@@ -97,7 +97,7 @@ exports.multicastMessage = async (userIds, messages) => {
         }
       }
     );
-    
+
     info(`Multicast message sent to ${userIds.length} users`);
     return { success: true, data: response.data };
   } catch (err) {
@@ -124,7 +124,7 @@ exports.broadcastMessage = async (messages) => {
         }
       }
     );
-    
+
     info('Broadcast message sent');
     return { success: true, data: response.data };
   } catch (err) {
@@ -147,7 +147,7 @@ exports.getProfile = async (userId) => {
         }
       }
     );
-    
+
     return { success: true, profile: response.data };
   } catch (err) {
     error(`Failed to get profile for ${userId}`, { error: err.message });
@@ -291,7 +291,7 @@ exports.createRichMenu = async (menuData) => {
         }
       }
     );
-    
+
     info('Rich menu created', { richMenuId: response.data.richMenuId });
     return { success: true, richMenuId: response.data.richMenuId };
   } catch (err) {
@@ -309,11 +309,11 @@ exports.sendWelcomeMessage = async (userId, displayName) => {
   const messages = [
     {
       type: 'text',
-      text: `สวัสดีค่ะ คุณ ${displayName} 🎉\n\nยินดีต้อนรับสู่ TANYARAT Shop!\nขอบคุณที่เป็นสมาชิกกับเรานะคะ`
+      text: `🌸 สวัสดีค่ะ คุณ ${displayName}! 🌸\n\nยินดีต้อนรับสู่ TANYARAT Shop 💕\nร้านผลิตภัณฑ์ดูแลสุขภาพและความงาม\n\n🎁 สมาชิกใหม่รับส่วนลด 10%\n⭐ ช้อปทุก 100 บาท = 1 แต้มสะสม\n📦 ส่งฟรีทั่วประเทศ เมื่อซื้อครบ 500 บาท\n\nพิมพ์ "เมนู" เพื่อดูคำสั่งที่ใช้ได้ค่ะ`
     },
     {
       type: 'flex',
-      altText: 'เมนูหลัก',
+      altText: 'เมนูหลัก TANYARAT Shop',
       contents: {
         type: 'bubble',
         body: {
@@ -322,9 +322,10 @@ exports.sendWelcomeMessage = async (userId, displayName) => {
           contents: [
             {
               type: 'text',
-              text: '🏠 บริการของเรา',
+              text: '🛍️ เริ่มช้อปปิ้งกันเลย!',
               weight: 'bold',
-              size: 'lg'
+              size: 'lg',
+              color: '#b88e5e'
             },
             {
               type: 'text',
@@ -344,10 +345,11 @@ exports.sendWelcomeMessage = async (userId, displayName) => {
               type: 'button',
               action: {
                 type: 'uri',
-                label: '🛍️ ดูสินค้า',
-                uri: 'https://yourdomain.com/shop.html'
+                label: '🛍️ เข้าร้านค้า',
+                uri: 'https://liff.tanyarat.online/shop.html'
               },
-              style: 'primary'
+              style: 'primary',
+              color: '#b88e5e'
             },
             {
               type: 'button',
@@ -363,7 +365,7 @@ exports.sendWelcomeMessage = async (userId, displayName) => {
               action: {
                 type: 'uri',
                 label: '📞 ติดต่อเรา',
-                uri: 'https://yourdomain.com/contacts.html'
+                uri: 'https://liff.tanyarat.online/contacts.html'
               },
               style: 'secondary'
             }
@@ -372,7 +374,7 @@ exports.sendWelcomeMessage = async (userId, displayName) => {
       }
     }
   ];
-  
+
   return await exports.pushMessage(userId, messages);
 };
 
@@ -391,7 +393,7 @@ exports.sendOrderStatusUpdate = async (userId, order, status) => {
     'delivered': '✨ จัดส่งสำเร็จ',
     'cancelled': '❌ ยกเลิก'
   };
-  
+
   const message = {
     type: 'flex',
     altText: `อัพเดทสถานะคำสั่งซื้อ #${order.orderNumber}`,
@@ -447,7 +449,7 @@ exports.sendOrderStatusUpdate = async (userId, order, status) => {
       }
     }
   };
-  
+
   return await exports.pushMessage(userId, message);
 };
 
