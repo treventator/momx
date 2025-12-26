@@ -5,8 +5,8 @@
 
 // Configuration - เปลี่ยน LIFF_ID เมื่อได้รับจาก LINE Developers
 const LIFF_ID = '2008785286-iV2E6B95';
-const API_BASE_URL = window.location.hostname === 'localhost' 
-  ? '/api' 
+const API_BASE_URL = window.location.hostname === 'localhost'
+  ? '/api'
   : '/api';
 
 // Global state
@@ -20,30 +20,30 @@ let authToken = null;
 async function initializeLiff() {
   try {
     console.log('Initializing LIFF...');
-    
+
     await liff.init({ liffId: LIFF_ID });
-    
+
     console.log('LIFF initialized successfully');
     console.log('Is in LINE client:', liff.isInClient());
     console.log('Is logged in:', liff.isLoggedIn());
-    
+
     // Check if user is logged in
     if (!liff.isLoggedIn()) {
       console.log('User not logged in, redirecting to LINE login...');
       liff.login();
       return;
     }
-    
+
     // Get LINE profile
     await getLiffProfile();
-    
+
     // Authenticate with backend
     await authenticateWithBackend();
-    
+
     // Hide loading screen and show main content
     hideLoading();
     showSection('mainSection');
-    
+
   } catch (error) {
     console.error('LIFF initialization failed:', error);
     showError('ไม่สามารถเชื่อมต่อกับ LINE ได้: ' + error.message);
@@ -57,10 +57,10 @@ async function getLiffProfile() {
   try {
     liffProfile = await liff.getProfile();
     console.log('LINE Profile:', liffProfile);
-    
+
     // Update UI with LINE profile
     updateProfileUI(liffProfile);
-    
+
   } catch (error) {
     console.error('Failed to get LINE profile:', error);
     throw error;
@@ -74,9 +74,9 @@ async function authenticateWithBackend() {
   try {
     const accessToken = liff.getAccessToken();
     const idToken = liff.getIDToken();
-    
+
     console.log('Authenticating with backend...');
-    
+
     const response = await fetch(`${API_BASE_URL}/line/auth`, {
       method: 'POST',
       headers: {
@@ -87,26 +87,31 @@ async function authenticateWithBackend() {
         idToken
       })
     });
-    
+
     const data = await response.json();
-    
+
     if (!data.success) {
       throw new Error(data.message || 'Authentication failed');
     }
-    
+
     console.log('Backend authentication successful:', data);
-    
+
     // Store auth token and user data
     authToken = data.user.token;
     userData = data.user;
-    
-    // Save to localStorage for persistence
+
+    // Save to localStorage for persistence (multiple keys for compatibility)
     localStorage.setItem('liff_token', authToken);
+    localStorage.setItem('token', authToken); // For account.js compatibility
     localStorage.setItem('liff_user', JSON.stringify(userData));
-    
+    localStorage.setItem('user', JSON.stringify(userData)); // For other pages
+
+    // Also set cookie for checkout.js compatibility
+    document.cookie = `token=${authToken}; path=/; max-age=${30 * 24 * 60 * 60}`; // 30 days
+
     // Update UI with user data
     updateUserUI(userData);
-    
+
   } catch (error) {
     console.error('Backend authentication failed:', error);
     // Continue anyway - user can still use basic features
@@ -120,15 +125,15 @@ function updateProfileUI(profile) {
   const avatarEl = document.getElementById('profileAvatar');
   const nameEl = document.getElementById('profileName');
   const statusEl = document.getElementById('profileStatus');
-  
+
   if (avatarEl && profile.pictureUrl) {
     avatarEl.src = profile.pictureUrl;
   }
-  
+
   if (nameEl) {
     nameEl.textContent = profile.displayName || 'สมาชิก';
   }
-  
+
   if (statusEl && profile.statusMessage) {
     statusEl.textContent = profile.statusMessage;
   }
@@ -145,25 +150,25 @@ function updateUserUI(user) {
   const emailEl = document.getElementById('inputEmail');
   const membershipBadge = document.getElementById('membershipBadge');
   const memberSince = document.getElementById('memberSince');
-  
+
   if (firstNameEl) firstNameEl.value = user.firstName || '';
   if (lastNameEl) lastNameEl.value = user.lastName || '';
   if (phoneEl) phoneEl.value = user.phoneNumber || '';
   if (emailEl) emailEl.value = user.email || '';
-  
+
   // Update membership badge
   if (membershipBadge) {
     const membership = user.membership || 'none';
     membershipBadge.textContent = getMembershipText(membership);
     membershipBadge.className = 'membership-badge ' + membership;
   }
-  
+
   // Update points
   const totalPointsEl = document.getElementById('totalPoints');
   if (totalPointsEl) {
     totalPointsEl.textContent = (user.points || 0).toLocaleString();
   }
-  
+
   // Calculate months since registration
   if (memberSince && user.createdAt) {
     const created = new Date(user.createdAt);
@@ -171,10 +176,10 @@ function updateUserUI(user) {
     const months = Math.floor((now - created) / (1000 * 60 * 60 * 24 * 30));
     memberSince.textContent = months || 1;
   }
-  
+
   // Load orders if available
   loadUserOrders();
-  
+
   // Load addresses if available
   loadUserAddresses(user);
 }
@@ -197,26 +202,26 @@ function getMembershipText(membership) {
 async function loadUserOrders() {
   try {
     if (!authToken) return;
-    
+
     const response = await fetch(`${API_BASE_URL}/shop/orders/my-orders`, {
       headers: {
         'Authorization': `Bearer ${authToken}`
       }
     });
-    
+
     const data = await response.json();
-    
+
     if (data.success && data.orders) {
       // Update total orders count
       const totalOrdersEl = document.getElementById('totalOrders');
       if (totalOrdersEl) {
         totalOrdersEl.textContent = data.orders.length;
       }
-      
+
       // Render orders list
       renderOrdersList(data.orders);
     }
-    
+
   } catch (error) {
     console.error('Failed to load orders:', error);
   }
@@ -228,7 +233,7 @@ async function loadUserOrders() {
 function renderOrdersList(orders) {
   const container = document.getElementById('ordersList');
   if (!container) return;
-  
+
   if (!orders || orders.length === 0) {
     container.innerHTML = `
       <div class="text-center py-5">
@@ -241,7 +246,7 @@ function renderOrdersList(orders) {
     `;
     return;
   }
-  
+
   const statusTexts = {
     'pending': 'รอการยืนยัน',
     'confirmed': 'ยืนยันแล้ว',
@@ -250,7 +255,7 @@ function renderOrdersList(orders) {
     'delivered': 'จัดส่งสำเร็จ',
     'cancelled': 'ยกเลิก'
   };
-  
+
   container.innerHTML = orders.map(order => `
     <div class="order-card">
       <div class="d-flex justify-content-between align-items-start mb-2">
@@ -274,15 +279,15 @@ function renderOrdersList(orders) {
  */
 function loadUserAddresses(user) {
   if (!user.addresses || user.addresses.length === 0) return;
-  
+
   const address = user.addresses.find(a => a.isDefault) || user.addresses[0];
-  
+
   const address1El = document.getElementById('inputAddress1');
   const address2El = document.getElementById('inputAddress2');
   const cityEl = document.getElementById('inputCity');
   const stateEl = document.getElementById('inputState');
   const postalCodeEl = document.getElementById('inputPostalCode');
-  
+
   if (address1El) address1El.value = address.addressLine1 || '';
   if (address2El) address2El.value = address.addressLine2 || '';
   if (cityEl) cityEl.value = address.city || '';
@@ -298,7 +303,7 @@ function showSection(sectionId) {
   document.querySelectorAll('.liff-section').forEach(section => {
     section.classList.remove('active');
   });
-  
+
   // Show target section
   const targetSection = document.getElementById(sectionId);
   if (targetSection) {
@@ -322,7 +327,7 @@ function hideLoading() {
 function showError(message) {
   hideLoading();
   showSection('errorSection');
-  
+
   const errorMessageEl = document.getElementById('errorMessage');
   if (errorMessageEl) {
     errorMessageEl.textContent = message;
@@ -335,11 +340,11 @@ function showError(message) {
 function showAlert(containerId, message, type = 'success') {
   const container = document.getElementById(containerId);
   if (!container) return;
-  
+
   container.className = `alert alert-liff alert-${type}`;
   container.textContent = message;
   container.classList.remove('d-none');
-  
+
   // Auto hide after 3 seconds
   setTimeout(() => {
     container.classList.add('d-none');
@@ -351,13 +356,13 @@ function showAlert(containerId, message, type = 'success') {
  */
 async function updateProfile(e) {
   e.preventDefault();
-  
+
   try {
     const firstName = document.getElementById('inputFirstName').value;
     const lastName = document.getElementById('inputLastName').value;
     const phoneNumber = document.getElementById('inputPhone').value;
     const email = document.getElementById('inputEmail').value;
-    
+
     const response = await fetch(`${API_BASE_URL}/line/profile`, {
       method: 'PUT',
       headers: {
@@ -371,9 +376,9 @@ async function updateProfile(e) {
         email
       })
     });
-    
+
     const data = await response.json();
-    
+
     if (data.success) {
       showAlert('profileAlert', 'บันทึกข้อมูลสำเร็จ', 'success');
       userData = { ...userData, ...data.user };
@@ -381,7 +386,7 @@ async function updateProfile(e) {
     } else {
       showAlert('profileAlert', data.message || 'เกิดข้อผิดพลาด', 'danger');
     }
-    
+
   } catch (error) {
     console.error('Update profile error:', error);
     showAlert('profileAlert', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'danger');
@@ -393,7 +398,7 @@ async function updateProfile(e) {
  */
 async function updateAddress(e) {
   e.preventDefault();
-  
+
   try {
     const addressData = {
       addressLine1: document.getElementById('inputAddress1').value,
@@ -404,7 +409,7 @@ async function updateAddress(e) {
       country: 'Thailand',
       isDefault: true
     };
-    
+
     const response = await fetch(`${API_BASE_URL}/users/address`, {
       method: 'POST',
       headers: {
@@ -413,15 +418,15 @@ async function updateAddress(e) {
       },
       body: JSON.stringify(addressData)
     });
-    
+
     const data = await response.json();
-    
+
     if (data.success) {
       showAlert('addressAlert', 'บันทึกที่อยู่สำเร็จ', 'success');
     } else {
       showAlert('addressAlert', data.message || 'เกิดข้อผิดพลาด', 'danger');
     }
-    
+
   } catch (error) {
     console.error('Update address error:', error);
     showAlert('addressAlert', 'เกิดข้อผิดพลาดในการบันทึกที่อยู่', 'danger');
@@ -436,7 +441,7 @@ async function shareApp() {
     alert('ฟีเจอร์แชร์ไม่รองรับในเบราว์เซอร์นี้');
     return;
   }
-  
+
   try {
     await liff.shareTargetPicker([
       {
@@ -489,7 +494,7 @@ async function shareApp() {
         }
       }
     ]);
-    
+
   } catch (error) {
     console.error('Share error:', error);
   }
@@ -514,7 +519,7 @@ async function sendMessage(message) {
     console.log('Not in LINE client, cannot send message');
     return { success: false, reason: 'not_in_client' };
   }
-  
+
   try {
     await liff.sendMessages([
       {
@@ -534,7 +539,7 @@ async function sendMessage(message) {
  */
 async function sendProfileUpdateConfirmation() {
   if (!liff.isInClient()) return;
-  
+
   try {
     await liff.sendMessages([
       {
@@ -580,7 +585,7 @@ async function sendOrderConfirmationToChat(order) {
     console.log('Not in LINE client, skipping chat message');
     return;
   }
-  
+
   try {
     await liff.sendMessages([
       {
@@ -660,7 +665,7 @@ async function sendOrderConfirmationToChat(order) {
  */
 async function sendContactConfirmationToChat(subject) {
   if (!liff.isInClient()) return;
-  
+
   try {
     await liff.sendMessages([
       {
@@ -709,7 +714,7 @@ async function sendContactConfirmationToChat(subject) {
  */
 async function sendPointsSummaryToChat() {
   if (!liff.isInClient() || !userData) return;
-  
+
   try {
     await liff.sendMessages([
       {
@@ -769,13 +774,13 @@ async function sendPointsSummaryToChat() {
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize LIFF
   initializeLiff();
-  
+
   // Profile form
   const profileForm = document.getElementById('profileForm');
   if (profileForm) {
     profileForm.addEventListener('submit', updateProfile);
   }
-  
+
   // Address form
   const addressForm = document.getElementById('addressForm');
   if (addressForm) {
