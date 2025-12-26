@@ -6,18 +6,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // Senior accessibility enhancements
     initAccessibilityFeatures();
 
-    const loginSection = document.getElementById('login-section');
-    const dashboardContent = document.getElementById('dashboard-content');
-    const loginForm = document.getElementById('admin-login-form');
-    const loginError = document.getElementById('login-error');
+    const loginSection = document.getElementById('loginSection');
+    const dashboardContent = document.getElementById('dashboardSection');
+    const loginForm = document.getElementById('loginForm');
+    const loginError = document.getElementById('loginError');
+
+    // Check if elements exist (new admin design)
+    if (!loginSection || !dashboardContent) {
+        console.log('New admin design detected - using new element structure');
+        initNewAdminDesign();
+        return;
+    }
 
     // Check if already logged in (simple check, improve with tokens later)
     if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
         showDashboard();
     } else {
         // Show login form if not logged in
-        loginSection.classList.remove('d-none');
-        dashboardContent.classList.add('d-none');
+        if (loginSection) loginSection.classList.remove('d-none');
+        if (dashboardContent) dashboardContent.classList.add('d-none');
     }
 
     // --- Login Form Submission --- 
@@ -89,6 +96,475 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ==================== NEW ADMIN DESIGN FUNCTIONS ====================
+
+function initNewAdminDesign() {
+    console.log('Initializing new admin design...');
+
+    const loginSection = document.getElementById('loginSection');
+    const dashboardSection = document.getElementById('dashboardSection');
+    const loginForm = document.getElementById('loginForm');
+    const loginError = document.getElementById('loginError');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // Check if already logged in
+    if (localStorage.getItem('authToken') && sessionStorage.getItem('isAdminLoggedIn') === 'true') {
+        showNewDashboard();
+        return;
+    }
+
+    // Show login, hide dashboard
+    if (loginSection) loginSection.classList.remove('d-none');
+    if (dashboardSection) dashboardSection.classList.add('d-none');
+
+    // Login form handler
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const emailInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const email = emailInput ? emailInput.value.trim() : '';
+            const password = passwordInput ? passwordInput.value : '';
+
+            if (!email || !password) {
+                showLoginError('กรุณากรอกอีเมลและรหัสผ่าน');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success && data.user && data.user.token) {
+                    if (data.user.role !== 'admin') {
+                        showLoginError('คุณไม่มีสิทธิ์เข้าถึงหน้า Admin');
+                        return;
+                    }
+
+                    localStorage.setItem('authToken', data.user.token);
+                    sessionStorage.setItem('isAdminLoggedIn', 'true');
+                    showNewDashboard();
+                } else {
+                    showLoginError(data.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showLoginError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            }
+        });
+    }
+
+    // Logout handler
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('authToken');
+            sessionStorage.removeItem('isAdminLoggedIn');
+            location.reload();
+        });
+    }
+
+    // Sidebar navigation
+    initNewSidebarNav();
+}
+
+function showLoginError(message) {
+    const loginError = document.getElementById('loginError');
+    if (loginError) {
+        loginError.textContent = message;
+        loginError.classList.remove('d-none');
+    }
+}
+
+function showNewDashboard() {
+    const loginSection = document.getElementById('loginSection');
+    const dashboardSection = document.getElementById('dashboardSection');
+
+    if (loginSection) loginSection.classList.add('d-none');
+    if (dashboardSection) dashboardSection.classList.remove('d-none');
+
+    // Initialize dashboard
+    initNewSidebarNav();
+    loadDashboardStats();
+    loadRecentOrders();
+}
+
+function initNewSidebarNav() {
+    const sidebarItems = document.querySelectorAll('.sidebar-nav-item[data-section]');
+    const allSections = document.querySelectorAll('.admin-section');
+    const pageTitle = document.getElementById('pageTitle');
+
+    sidebarItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const section = item.getAttribute('data-section');
+
+            // Update active state
+            sidebarItems.forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+
+            // Show selected section
+            allSections.forEach(s => s.classList.add('d-none'));
+            const targetSection = document.getElementById(section + 'Section');
+            if (targetSection) targetSection.classList.remove('d-none');
+
+            // Update page title
+            const sectionTitles = {
+                'overview': 'ภาพรวม',
+                'products': 'จัดการสินค้า',
+                'orders': 'จัดการออเดอร์',
+                'contacts': 'ข้อความติดต่อ',
+                'users': 'จัดการผู้ใช้',
+                'payments': 'ช่องทางชำระเงิน',
+                'settings': 'ตั้งค่า'
+            };
+            if (pageTitle) pageTitle.textContent = sectionTitles[section] || 'ภาพรวม';
+
+            // Load section data
+            loadSectionData(section);
+        });
+    });
+
+    // Mobile sidebar toggle
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('adminSidebar');
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('show');
+        });
+    }
+}
+
+function loadDashboardStats() {
+    const authToken = localStorage.getItem('authToken');
+
+    // Fetch sales stats
+    fetch('/api/admin/orders', {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.orders) {
+                const totalSales = data.orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+                const statSales = document.getElementById('statSales');
+                const statOrders = document.getElementById('statOrders');
+                if (statSales) statSales.textContent = '฿' + totalSales.toLocaleString();
+                if (statOrders) statOrders.textContent = data.orders.length;
+            }
+        })
+        .catch(err => console.error('Error loading stats:', err));
+
+    // Fetch contacts count
+    fetch('/api/admin/contacts', {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.contacts) {
+                const statContacts = document.getElementById('statContacts');
+                if (statContacts) statContacts.textContent = data.contacts.length;
+            }
+        })
+        .catch(err => console.error('Error loading contacts:', err));
+
+    // Fetch users count
+    fetch('/api/admin/users', {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.users) {
+                const statUsers = document.getElementById('statUsers');
+                if (statUsers) statUsers.textContent = data.users.length;
+            }
+        })
+        .catch(err => console.error('Error loading users:', err));
+}
+
+function loadRecentOrders() {
+    const authToken = localStorage.getItem('authToken');
+    const tbody = document.getElementById('recentOrdersBody');
+    if (!tbody) return;
+
+    fetch('/api/admin/orders?limit=5', {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.orders && data.orders.length > 0) {
+                tbody.innerHTML = data.orders.slice(0, 5).map(order => {
+                    const statusClass = {
+                        'pending': 'pending',
+                        'processing': 'processing',
+                        'shipped': 'shipped',
+                        'delivered': 'delivered',
+                        'cancelled': 'cancelled'
+                    }[order.status] || 'pending';
+
+                    const statusText = {
+                        'pending': 'รอดำเนินการ',
+                        'processing': 'กำลังจัดส่ง',
+                        'shipped': 'จัดส่งแล้ว',
+                        'delivered': 'ได้รับสินค้า',
+                        'cancelled': 'ยกเลิก'
+                    }[order.status] || order.status;
+
+                    const customerName = order.user?.lineProfile?.displayName ||
+                        order.shippingAddress?.fullName ||
+                        'ไม่ระบุชื่อ';
+                    const date = new Date(order.createdAt).toLocaleDateString('th-TH');
+
+                    return `
+                    <tr>
+                        <td>#${order.orderNumber || order._id.slice(-6)}</td>
+                        <td>${customerName}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>฿${(order.totalAmount || 0).toLocaleString()}</td>
+                        <td>${date}</td>
+                    </tr>
+                `;
+                }).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">ยังไม่มีออเดอร์</td></tr>';
+            }
+        })
+        .catch(err => {
+            console.error('Error loading orders:', err);
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-danger">เกิดข้อผิดพลาด</td></tr>';
+        });
+}
+
+function loadSectionData(section) {
+    const authToken = localStorage.getItem('authToken');
+
+    switch (section) {
+        case 'products':
+            loadProductsSection();
+            break;
+        case 'orders':
+            loadOrdersSection();
+            break;
+        case 'contacts':
+            loadContactsSection();
+            break;
+        case 'users':
+            loadUsersSection();
+            break;
+    }
+}
+
+function loadProductsSection() {
+    const container = document.getElementById('productsContainer');
+    if (!container) return;
+
+    const authToken = localStorage.getItem('authToken');
+
+    fetch('/api/shop/products', {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.products && data.products.length > 0) {
+                container.innerHTML = `
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>รูป</th>
+                            <th>ชื่อสินค้า</th>
+                            <th>ราคา</th>
+                            <th>คลัง</th>
+                            <th>การดำเนินการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.products.map(p => `
+                            <tr>
+                                <td><img src="${p.imageUrl || 'assets/img/placeholder.png'}" width="50" height="50" style="object-fit:cover;border-radius:8px;"></td>
+                                <td>${p.name}</td>
+                                <td>฿${(p.price || 0).toLocaleString()}</td>
+                                <td>${p.stock || 0}</td>
+                                <td>
+                                    <button class="btn-tanyarat-outline" onclick="editProduct('${p._id}')">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            } else {
+                container.innerHTML = '<p class="text-center py-4">ยังไม่มีสินค้า</p>';
+            }
+        })
+        .catch(err => {
+            console.error('Error loading products:', err);
+            container.innerHTML = '<p class="text-center py-4 text-danger">เกิดข้อผิดพลาด</p>';
+        });
+}
+
+function loadOrdersSection() {
+    const container = document.getElementById('ordersContainer');
+    if (!container) return;
+
+    const authToken = localStorage.getItem('authToken');
+
+    fetch('/api/admin/orders', {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.orders && data.orders.length > 0) {
+                container.innerHTML = `
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>หมายเลข</th>
+                            <th>ลูกค้า</th>
+                            <th>สถานะ</th>
+                            <th>ยอดรวม</th>
+                            <th>วันที่</th>
+                            <th>การดำเนินการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.orders.map(order => {
+                    const customerName = order.user?.lineProfile?.displayName ||
+                        order.shippingAddress?.fullName || 'ไม่ระบุ';
+                    const date = new Date(order.createdAt).toLocaleDateString('th-TH');
+                    const statusClass = order.status || 'pending';
+                    const statusText = {
+                        'pending': 'รอดำเนินการ',
+                        'processing': 'กำลังจัดส่ง',
+                        'shipped': 'จัดส่งแล้ว',
+                        'delivered': 'ได้รับสินค้า',
+                        'cancelled': 'ยกเลิก'
+                    }[order.status] || order.status;
+
+                    return `
+                                <tr>
+                                    <td>#${order.orderNumber || order._id.slice(-6)}</td>
+                                    <td>${customerName}</td>
+                                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                                    <td>฿${(order.totalAmount || 0).toLocaleString()}</td>
+                                    <td>${date}</td>
+                                    <td>
+                                        <button class="btn-tanyarat-outline" onclick="viewOrder('${order._id}')">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                }).join('')}
+                    </tbody>
+                </table>
+            `;
+            } else {
+                container.innerHTML = '<p class="text-center py-4">ยังไม่มีออเดอร์</p>';
+            }
+        })
+        .catch(err => {
+            console.error('Error loading orders:', err);
+            container.innerHTML = '<p class="text-center py-4 text-danger">เกิดข้อผิดพลาด</p>';
+        });
+}
+
+function loadContactsSection() {
+    const container = document.getElementById('contactsContainer');
+    if (!container) return;
+
+    const authToken = localStorage.getItem('authToken');
+
+    fetch('/api/admin/contacts', {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.contacts && data.contacts.length > 0) {
+                container.innerHTML = `
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ชื่อ</th>
+                            <th>LINE ID</th>
+                            <th>ข้อความ</th>
+                            <th>วันที่</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.contacts.map(c => `
+                            <tr>
+                                <td>${c.name}</td>
+                                <td>${c.lineId}</td>
+                                <td>${c.message?.substring(0, 50)}${c.message?.length > 50 ? '...' : ''}</td>
+                                <td>${new Date(c.createdAt).toLocaleDateString('th-TH')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            } else {
+                container.innerHTML = '<p class="text-center py-4">ยังไม่มีข้อความติดต่อ</p>';
+            }
+        })
+        .catch(err => {
+            console.error('Error loading contacts:', err);
+            container.innerHTML = '<p class="text-center py-4 text-danger">เกิดข้อผิดพลาด</p>';
+        });
+}
+
+function loadUsersSection() {
+    const container = document.getElementById('usersContainer');
+    if (!container) return;
+
+    const authToken = localStorage.getItem('authToken');
+
+    fetch('/api/admin/users', {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.users && data.users.length > 0) {
+                container.innerHTML = `
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>รูป</th>
+                            <th>ชื่อ</th>
+                            <th>อีเมล</th>
+                            <th>บทบาท</th>
+                            <th>วันที่สมัคร</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.users.map(u => `
+                            <tr>
+                                <td><img src="${u.lineProfile?.pictureUrl || 'assets/img/placeholder.png'}" width="40" height="40" style="object-fit:cover;border-radius:50%;"></td>
+                                <td>${u.lineProfile?.displayName || u.firstName || 'ไม่ระบุ'}</td>
+                                <td>${u.email || '-'}</td>
+                                <td>${u.role || 'user'}</td>
+                                <td>${new Date(u.createdAt).toLocaleDateString('th-TH')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            } else {
+                container.innerHTML = '<p class="text-center py-4">ยังไม่มีผู้ใช้</p>';
+            }
+        })
+        .catch(err => {
+            console.error('Error loading users:', err);
+            container.innerHTML = '<p class="text-center py-4 text-danger">เกิดข้อผิดพลาด</p>';
+        });
+}
 
 // Initialize accessibility features for seniors
 function initAccessibilityFeatures() {
@@ -208,11 +684,11 @@ function speakText(text) {
 }
 
 function showDashboard() {
-    const loginSection = document.getElementById('login-section');
-    const dashboardContent = document.getElementById('dashboard-content');
+    const loginSection = document.getElementById('loginSection');
+    const dashboardContent = document.getElementById('dashboardSection');
 
-    loginSection.classList.add('d-none');
-    dashboardContent.classList.remove('d-none');
+    if (loginSection) loginSection.classList.add('d-none');
+    if (dashboardContent) dashboardContent.classList.remove('d-none');
 
     console.log('Showing dashboard, initializing components...');
     // Initialize UI components and fetch data *after* login is confirmed
