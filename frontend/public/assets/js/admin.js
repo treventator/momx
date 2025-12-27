@@ -256,13 +256,22 @@ async function loadProducts() {
     if (!container) return;
 
     container.innerHTML = '<p class="text-center py-4">กำลังโหลด...</p>';
+    const token = localStorage.getItem('authToken');
 
     try {
-        const res = await fetch('/api/shop/products');
+        const res = await fetch('/api/admin/products', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         const data = await res.json();
 
         if (data.success && data.products?.length > 0) {
             container.innerHTML = `
+                <div class="section-header">
+                    <h3>สินค้าทั้งหมด (${data.products.length})</h3>
+                    <button class="btn-tanyarat" onclick="showProductModal()">
+                        <i class="fa fa-plus me-1"></i>เพิ่มสินค้า
+                    </button>
+                </div>
                 <table class="admin-table">
                     <thead>
                         <tr>
@@ -270,19 +279,24 @@ async function loadProducts() {
                             <th>ชื่อสินค้า</th>
                             <th>ราคา</th>
                             <th>คลัง</th>
+                            <th>สถานะ</th>
                             <th>การดำเนินการ</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${data.products.map(p => `
                             <tr>
-                                <td><img src="${p.imageUrl || 'assets/img/placeholder.png'}" width="50" height="50" style="object-fit:cover;border-radius:8px;"></td>
+                                <td><img src="${p.images?.[0] || p.imageUrl || 'assets/img/placeholder.png'}" width="50" height="50" style="object-fit:cover;border-radius:8px;"></td>
                                 <td>${p.name}</td>
-                                <td>฿${(p.price || 0).toLocaleString()}</td>
-                                <td>${p.stock || 0}</td>
+                                <td>฿${(p.price || 0).toLocaleString()}${p.salePrice ? `<br><small class="text-danger">ลด ฿${p.salePrice.toLocaleString()}</small>` : ''}</td>
+                                <td><span class="${p.stock < 5 ? 'text-danger fw-bold' : ''}">${p.stock || 0}</span></td>
+                                <td>${p.isActive ? '<span class="badge bg-success">พร้อมขาย</span>' : '<span class="badge bg-secondary">ปิด</span>'}</td>
                                 <td>
-                                    <button class="btn-tanyarat-outline" onclick="editProduct('${p._id}')">
+                                    <button class="btn-tanyarat-outline" onclick="editProduct('${p._id}')" title="แก้ไข">
                                         <i class="fa fa-edit"></i>
+                                    </button>
+                                    <button class="btn-tanyarat-outline text-danger" onclick="deleteProduct('${p._id}')" title="ลบ">
+                                        <i class="fa fa-trash"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -291,7 +305,15 @@ async function loadProducts() {
                 </table>
             `;
         } else {
-            container.innerHTML = '<p class="text-center py-4">ยังไม่มีสินค้า</p>';
+            container.innerHTML = `
+                <div class="section-header">
+                    <h3>สินค้าทั้งหมด</h3>
+                    <button class="btn-tanyarat" onclick="showProductModal()">
+                        <i class="fa fa-plus me-1"></i>เพิ่มสินค้า
+                    </button>
+                </div>
+                <p class="text-center py-4">ยังไม่มีสินค้า - กดปุ่ม "เพิ่มสินค้า" เพื่อเริ่มต้น</p>
+            `;
         }
     } catch (error) {
         console.error('Error:', error);
@@ -482,14 +504,214 @@ function renderOrderRow(order) {
 
 // ==================== PRODUCT ACTIONS ====================
 
-function editProduct(id) {
-    console.log('Edit product:', id);
-    // TODO: Implement product edit modal
-    alert('ฟีเจอร์แก้ไขสินค้ากำลังพัฒนา');
+let currentEditProductId = null;
+
+function showProductModal(product = null) {
+    currentEditProductId = product ? product._id : null;
+
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('productModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'productModal';
+        modal.className = 'admin-modal';
+        modal.innerHTML = `
+            <div class="admin-modal-content">
+                <div class="admin-modal-header">
+                    <h4 id="productModalTitle">เพิ่มสินค้าใหม่</h4>
+                    <button type="button" class="close-modal" onclick="closeProductModal()">&times;</button>
+                </div>
+                <form id="productForm" onsubmit="saveProduct(event)">
+                    <div class="form-group">
+                        <label>ชื่อสินค้า *</label>
+                        <input type="text" id="productName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>คำอธิบาย</label>
+                        <textarea id="productDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>ราคา (บาท) *</label>
+                            <input type="number" id="productPrice" class="form-control" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group half">
+                            <label>ราคาลด (บาท)</label>
+                            <input type="number" id="productSalePrice" class="form-control" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>จำนวนในคลัง *</label>
+                            <input type="number" id="productStock" class="form-control" min="0" required>
+                        </div>
+                        <div class="form-group half">
+                            <label>SKU</label>
+                            <input type="text" id="productSku" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>URL รูปภาพ</label>
+                        <input type="text" id="productImage" class="form-control" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="productActive" checked> สินค้าพร้อมขาย
+                        </label>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-tanyarat-outline" onclick="closeProductModal()">ยกเลิก</button>
+                        <button type="submit" class="btn-tanyarat">บันทึกสินค้า</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Add modal styles
+        if (!document.getElementById('modalStyles')) {
+            const styles = document.createElement('style');
+            styles.id = 'modalStyles';
+            styles.textContent = `
+                .admin-modal { position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999; }
+                .admin-modal-content { background:#fff;border-radius:16px;width:90%;max-width:500px;max-height:90vh;overflow-y:auto; }
+                .admin-modal-header { display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid #eee; }
+                .admin-modal-header h4 { margin:0;font-weight:600; }
+                .close-modal { background:none;border:none;font-size:24px;cursor:pointer;color:#666; }
+                #productForm { padding:20px; }
+                .form-group { margin-bottom:15px; }
+                .form-group label { display:block;margin-bottom:5px;font-weight:500; }
+                .form-group .form-control { width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px; }
+                .form-row { display:flex;gap:15px; }
+                .form-group.half { flex:1; }
+                .modal-actions { display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:20px;border-top:1px solid #eee; }
+            `;
+            document.head.appendChild(styles);
+        }
+    }
+
+    // Fill form if editing
+    if (product) {
+        document.getElementById('productModalTitle').textContent = 'แก้ไขสินค้า';
+        document.getElementById('productName').value = product.name || '';
+        document.getElementById('productDescription').value = product.description || '';
+        document.getElementById('productPrice').value = product.price || 0;
+        document.getElementById('productSalePrice').value = product.salePrice || '';
+        document.getElementById('productStock').value = product.stock || 0;
+        document.getElementById('productSku').value = product.sku || '';
+        document.getElementById('productImage').value = product.imageUrl || product.images?.[0] || '';
+        document.getElementById('productActive').checked = product.isActive !== false;
+    } else {
+        document.getElementById('productModalTitle').textContent = 'เพิ่มสินค้าใหม่';
+        document.getElementById('productForm').reset();
+        document.getElementById('productActive').checked = true;
+    }
+
+    modal.style.display = 'flex';
+}
+
+function closeProductModal() {
+    const modal = document.getElementById('productModal');
+    if (modal) modal.style.display = 'none';
+    currentEditProductId = null;
+}
+
+async function saveProduct(e) {
+    e.preventDefault();
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        alert('กรุณา login ใหม่');
+        return;
+    }
+
+    const productData = {
+        name: document.getElementById('productName').value.trim(),
+        description: document.getElementById('productDescription').value.trim(),
+        price: parseFloat(document.getElementById('productPrice').value) || 0,
+        salePrice: parseFloat(document.getElementById('productSalePrice').value) || null,
+        stock: parseInt(document.getElementById('productStock').value) || 0,
+        sku: document.getElementById('productSku').value.trim() || undefined,
+        images: document.getElementById('productImage').value.trim() ? [document.getElementById('productImage').value.trim()] : [],
+        isActive: document.getElementById('productActive').checked
+    };
+
+    try {
+        const url = currentEditProductId
+            ? `/api/admin/products/${currentEditProductId}`
+            : '/api/admin/products';
+
+        const method = currentEditProductId ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(productData)
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+            alert(currentEditProductId ? 'แก้ไขสินค้าสำเร็จ!' : 'เพิ่มสินค้าสำเร็จ!');
+            closeProductModal();
+            loadProducts(); // Reload list
+        } else {
+            alert('เกิดข้อผิดพลาด: ' + (data.message || 'ไม่สามารถบันทึกได้'));
+        }
+    } catch (error) {
+        console.error('Save product error:', error);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    }
+}
+
+async function editProduct(id) {
+    const token = localStorage.getItem('authToken');
+
+    try {
+        const res = await fetch(`/api/admin/products/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (data.success && data.product) {
+            showProductModal(data.product);
+        } else {
+            alert('ไม่พบสินค้า');
+        }
+    } catch (error) {
+        console.error('Error fetching product:', error);
+        alert('เกิดข้อผิดพลาด');
+    }
+}
+
+async function deleteProduct(id) {
+    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้?')) return;
+
+    const token = localStorage.getItem('authToken');
+
+    try {
+        const res = await fetch(`/api/admin/products/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+            alert('ลบสินค้าสำเร็จ!');
+            loadProducts();
+        } else {
+            alert('ไม่สามารถลบสินค้าได้: ' + (data.message || 'เกิดข้อผิดพลาด'));
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+        alert('เกิดข้อผิดพลาดในการลบ');
+    }
 }
 
 function viewOrder(id) {
     console.log('View order:', id);
-    // TODO: Implement order view modal
     alert('ฟีเจอร์ดูรายละเอียดออเดอร์กำลังพัฒนา');
 }
