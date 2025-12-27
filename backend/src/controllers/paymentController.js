@@ -32,11 +32,11 @@ exports.getPaymentSettings = (req, res) => {
   try {
     // Remove sensitive data like API keys before sending to client
     const sanitizedSettings = JSON.parse(JSON.stringify(paymentSettings));
-    
+
     if (sanitizedSettings.creditCard) {
       delete sanitizedSettings.creditCard.apiKey;
     }
-    
+
     return res.status(200).json({
       success: true,
       data: sanitizedSettings
@@ -54,7 +54,7 @@ exports.getPaymentSettings = (req, res) => {
 exports.updatePaymentSettings = (req, res) => {
   try {
     const { promptpay, bankTransfer, creditCard, cashOnDelivery } = req.body;
-    
+
     // Update settings
     if (promptpay) {
       paymentSettings.promptpay = {
@@ -62,28 +62,28 @@ exports.updatePaymentSettings = (req, res) => {
         ...promptpay
       };
     }
-    
+
     if (bankTransfer) {
       paymentSettings.bankTransfer = {
         ...paymentSettings.bankTransfer,
         ...bankTransfer
       };
     }
-    
+
     if (creditCard) {
       paymentSettings.creditCard = {
         ...paymentSettings.creditCard,
         ...creditCard
       };
     }
-    
+
     if (cashOnDelivery) {
       paymentSettings.cashOnDelivery = {
         ...paymentSettings.cashOnDelivery,
         ...cashOnDelivery
       };
     }
-    
+
     return res.status(200).json({
       success: true,
       message: 'Payment settings updated successfully',
@@ -105,30 +105,30 @@ exports.updatePaymentSettings = (req, res) => {
 exports.generatePromptPayQR = async (req, res) => {
   try {
     const { amount } = req.query;
-    
+
     if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
       return res.status(400).json({
         success: false,
         message: 'Valid amount is required'
       });
     }
-    
+
     // Get PromptPay number from settings
     const promptPayNumber = paymentSettings.promptpay.accountNumber;
-    
+
     if (!promptPayNumber) {
       return res.status(400).json({
         success: false,
         message: 'PromptPay account number is not configured'
       });
     }
-    
+
     // Format amount with 2 decimal places
     const formattedAmount = parseFloat(amount).toFixed(2);
-    
+
     // Generate PromptPay payload
     const payload = generatePromptPayPayload(promptPayNumber, formattedAmount);
-    
+
     // Generate QR code
     const qrCodeDataURL = await QRCode.toDataURL(payload, {
       errorCorrectionLevel: 'H',
@@ -139,7 +139,7 @@ exports.generatePromptPayQR = async (req, res) => {
         light: '#ffffff'
       }
     });
-    
+
     return res.status(200).json({
       success: true,
       data: {
@@ -166,14 +166,14 @@ exports.generatePromptPayQR = async (req, res) => {
 function generatePromptPayPayload(promptPayNumber, amount) {
   // Merchant identifier (ID 29) for PromptPay
   const merchantInfo = generateFieldData('29', generateFieldData('00', 'A000000677010111'));
-  
+
   // Transaction currency: THB = 764 (ID 53)
   const currency = generateFieldData('53', '764');
-  
+
   // Format PromptPay account ID (ID 30)
   let accountType;
   let accountData;
-  
+
   // Check if it's a phone number or tax ID
   if (promptPayNumber.match(/^\d{10}$/)) {
     // Phone number (mobile)
@@ -191,18 +191,18 @@ function generatePromptPayPayload(promptPayNumber, amount) {
     const digits = promptPayNumber.replace(/\D/g, '');
     accountData = digits.length >= 10 ? '66' + digits.substring(digits.length - 9) : promptPayNumber;
   }
-  
+
   const accountInfo = generateFieldData('30', generateFieldData(accountType, accountData));
-  
+
   // Transaction amount (ID 54)
   const transactionAmount = amount ? generateFieldData('54', amount) : '';
-  
+
   // Country (ID 58)
   const country = generateFieldData('58', 'TH');
-  
+
   // Static QR (ID 01) or Dynamic QR (ID 02)
   const qrType = transactionAmount ? '01' : '02';
-  
+
   // Combine all data
   const data = [
     '000201',                  // Payload format indicator (ID 00)
@@ -214,10 +214,10 @@ function generatePromptPayPayload(promptPayNumber, amount) {
     country,                   // Country
     '6304'                     // CRC (ID 63) - will be calculated next
   ].join('');
-  
+
   // Calculate CRC16 checksum
   const crc = crc16ccitt(data).toString(16).toUpperCase().padStart(4, '0');
-  
+
   // Return data with CRC
   return data.slice(0, -4) + crc;
 }
@@ -243,12 +243,12 @@ function crc16ccitt(data) {
     }
     crcTable.push(crc & 0xFFFF);
   }
-  
+
   let crc = 0xFFFF;
   for (let i = 0; i < data.length; i++) {
     crc = ((crc << 8) ^ crcTable[((crc >> 8) ^ data.charCodeAt(i)) & 0xFF]) & 0xFFFF;
   }
-  
+
   return crc;
 }
 
@@ -256,7 +256,7 @@ function crc16ccitt(data) {
 exports.verifyPayment = async (req, res) => {
   try {
     const webhookData = req.body;
-    
+
     // Validate the incoming webhook data
     if (!webhookData || !webhookData.event || !webhookData.data) {
       return res.status(400).json({
@@ -264,17 +264,17 @@ exports.verifyPayment = async (req, res) => {
         message: 'Invalid webhook data format'
       });
     }
-    
+
     // Log the webhook request for debugging
     console.log('Received payment webhook:', JSON.stringify(webhookData, null, 2));
-    
+
     // Process based on the event type
     if (webhookData.event === 'payment.success') {
       await processSuccessfulPayment(webhookData.data);
-      
+
       // Send notification to Matrix/Mattermost if configured
       await sendMatrixNotification(webhookData.data);
-      
+
       return res.status(200).json({
         success: true,
         message: 'Payment verification successful',
@@ -307,46 +307,46 @@ exports.verifyPayment = async (req, res) => {
 async function processSuccessfulPayment(paymentData) {
   try {
     // In a production system, we would validate the payment data with the payment provider
-    
+
     // Find the order by ID
     const Order = require('../models/Order');
     const GuestOrder = require('../models/GuestOrder');
-    
+
     // Normalize orderId (remove any prefix if present)
     const orderId = paymentData.orderId.replace(/^ORDER/i, '');
-    
+
     // Try to find the order in both Order and GuestOrder collections
     let order = await Order.findById(orderId);
-    
+
     if (!order) {
       // If not found by ID, try to find by orderNumber
       order = await Order.findOne({ orderNumber: paymentData.orderId });
     }
-    
+
     if (!order) {
       // Try guest orders if not found in regular orders
       order = await GuestOrder.findById(orderId);
-      
+
       if (!order) {
         // If still not found, try by orderNumber in guest orders
         order = await GuestOrder.findOne({ orderNumber: paymentData.orderId });
       }
     }
-    
+
     if (!order) {
       console.error(`Order not found for payment: ${paymentData.orderId}`);
       return;
     }
-    
+
     // Update order payment status
     order.isPaid = true;
     order.paidAt = new Date();
-    
+
     // Update payment method details if needed
     if (!order.paymentMethod && paymentData.paymentMethod) {
       order.paymentMethod = paymentData.paymentMethod;
     }
-    
+
     // Update payment result
     order.paymentResult = {
       id: paymentData.transactionId,
@@ -354,17 +354,17 @@ async function processSuccessfulPayment(paymentData) {
       update_time: paymentData.timestamp || new Date().toISOString(),
       email_address: paymentData.payer?.email || ''
     };
-    
+
     // If order was pending, update to processing
     if (order.status === 'pending') {
       order.status = 'processing';
     }
-    
+
     // Save the updated order
     await order.save();
-    
+
     console.log(`Order ${order._id} marked as paid (${paymentData.paymentMethod})`);
-    
+
     return order;
   } catch (error) {
     console.error('Error processing payment:', error);
@@ -380,13 +380,13 @@ async function sendMatrixNotification(paymentData) {
   try {
     // Get Matrix webhook URL from environment variable
     const matrixWebhookUrl = process.env.MATRIX_WEBHOOK_URL;
-    
+
     // Skip if no webhook URL is configured
     if (!matrixWebhookUrl) {
       console.log('No Matrix webhook URL configured, skipping notification');
       return;
     }
-    
+
     // Format payment method for display
     let paymentMethodText = paymentData.paymentMethod;
     switch (paymentData.paymentMethod) {
@@ -395,17 +395,17 @@ async function sendMatrixNotification(paymentData) {
       case 'credit_card': paymentMethodText = 'บัตรเครดิต/เดบิต'; break;
       case 'cash_on_delivery': paymentMethodText = 'เก็บเงินปลายทาง'; break;
     }
-    
+
     // Format message for Matrix/Mattermost
     const message = {
       text: `🔔 **การชำระเงินใหม่!**\n` +
-            `- คำสั่งซื้อ: ${paymentData.orderId}\n` +
-            `- จำนวนเงิน: ${paymentData.amount.toFixed(2)} บาท\n` +
-            `- วิธีชำระเงิน: ${paymentMethodText}\n` +
-            `- ผู้ชำระเงิน: ${paymentData.payer?.name || 'ไม่ระบุ'}\n` +
-            `- เวลา: ${new Date().toLocaleString('th-TH')}`
+        `- คำสั่งซื้อ: ${paymentData.orderId}\n` +
+        `- จำนวนเงิน: ${paymentData.amount.toFixed(2)} บาท\n` +
+        `- วิธีชำระเงิน: ${paymentMethodText}\n` +
+        `- ผู้ชำระเงิน: ${paymentData.payer?.name || 'ไม่ระบุ'}\n` +
+        `- เวลา: ${new Date().toLocaleString('th-TH')}`
     };
-    
+
     // Send notification to Matrix/Mattermost
     const response = await fetch(matrixWebhookUrl, {
       method: 'POST',
@@ -414,14 +414,138 @@ async function sendMatrixNotification(paymentData) {
       },
       body: JSON.stringify(message)
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to send Matrix notification: ${response.statusText}`);
     }
-    
+
     console.log('Matrix notification sent successfully');
   } catch (error) {
     console.error('Error sending Matrix notification:', error);
     // Don't throw the error to avoid disrupting the payment process
   }
-} 
+}
+
+// =============================================
+// OMISE PROMPTPAY FUNCTIONS
+// =============================================
+
+const omiseService = require('../services/omiseService');
+
+/**
+ * Create Omise PromptPay charge
+ * @route POST /api/payment/omise/promptpay
+ * @access Private
+ */
+exports.createOmisePromptPay = async (req, res) => {
+  try {
+    const { orderId, amount } = req.body;
+
+    if (!orderId || !amount) {
+      return res.status(400).json({
+        success: false,
+        message: 'orderId และ amount จำเป็นต้องระบุ'
+      });
+    }
+
+    if (amount < 20) {
+      return res.status(400).json({
+        success: false,
+        message: 'ยอดขั้นต่ำ 20 บาท'
+      });
+    }
+
+    const result = await omiseService.createPromptPayCharge(amount, orderId);
+
+    if (result.success) {
+      return res.status(200).json({
+        success: true,
+        data: result.data
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: result.error
+      });
+    }
+  } catch (error) {
+    console.error('Error creating Omise PromptPay:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการสร้าง QR Code'
+    });
+  }
+};
+
+/**
+ * Get Omise charge status
+ * @route GET /api/payment/omise/status/:chargeId
+ * @access Public
+ */
+exports.getOmiseChargeStatus = async (req, res) => {
+  try {
+    const { chargeId } = req.params;
+
+    if (!chargeId) {
+      return res.status(400).json({
+        success: false,
+        message: 'chargeId จำเป็นต้องระบุ'
+      });
+    }
+
+    const result = await omiseService.getChargeStatus(chargeId);
+
+    if (result.success) {
+      return res.status(200).json({
+        success: true,
+        data: result.data
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: result.error
+      });
+    }
+  } catch (error) {
+    console.error('Error getting Omise charge status:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการตรวจสอบสถานะ'
+    });
+  }
+};
+
+/**
+ * Handle Omise webhook
+ * @route POST /api/payment/omise/webhook
+ * @access Public (called by Omise)
+ */
+exports.handleOmiseWebhook = async (req, res) => {
+  try {
+    // Parse the raw body
+    let event;
+    if (Buffer.isBuffer(req.body)) {
+      event = JSON.parse(req.body.toString());
+    } else {
+      event = req.body;
+    }
+
+    console.log('Omise webhook received:', event.key);
+
+    const result = await omiseService.handleWebhookEvent(event);
+
+    // Always return 200 to Omise
+    return res.status(200).json({
+      success: true,
+      message: 'Webhook processed',
+      result
+    });
+  } catch (error) {
+    console.error('Error handling Omise webhook:', error);
+    // Still return 200 to prevent Omise from retrying
+    return res.status(200).json({
+      success: false,
+      message: 'Webhook error: ' + error.message
+    });
+  }
+}; 
