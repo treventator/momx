@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 <html lang="th" data-bs-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>รายละเอียดสินค้า - TANYARAT</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Thai:300,400,500,600,700&amp;display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Thai:300,400,500,600,700&amp;display=swap">
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
     <link rel="stylesheet" href="assets/css/theme.css">
 </head>
+
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-md sticky-top navbar-shrink py-3 navbar-light" id="mainNav">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="index.html">
-                <span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon">
-                    <img class="rounded-circle flex-shrink-0 me-3 fit-cover" width="75" height="75" src="assets/img/team/S__9469964_0.jpg">
+                <span
+                    class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon">
+                    <img class="rounded-circle flex-shrink-0 me-3 fit-cover" width="75" height="75"
+                        src="assets/img/team/S__9469964_0.jpg">
                 </span>
                 <span style="font-weight: 600; letter-spacing: 1px;">TANYARAT</span>
             </a>
@@ -43,13 +49,14 @@
                 </ul>
                 <div class="d-flex">
                     <a href="/api/shop/cart" class="btn btn-primary shadow me-2">
-                        <i class="fas fa-shopping-cart"></i> 
+                        <i class="fas fa-shopping-cart"></i>
                         <span class="cart-count">0</span>
                     </a>
                     <a href="login.html" class="btn btn-outline-secondary me-2 d-none" id="navLogin">เข้าสู่ระบบ</a>
                     <a href="register.html" class="btn btn-secondary d-none" id="navRegister">สมัครสมาชิก</a>
                     <div class="nav-item dropdown d-none" id="navAccount">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user me-1"></i> บัญชี
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -71,12 +78,13 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="index.html">หน้าหลัก</a></li>
                         <li class="breadcrumb-item"><a href="products.html">สินค้า</a></li>
-                        <li class="breadcrumb-item active" aria-current="page" id="product-title-breadcrumb">รายละเอียดสินค้า</li>
+                        <li class="breadcrumb-item active" aria-current="page" id="product-title-breadcrumb">
+                            รายละเอียดสินค้า</li>
                     </ol>
                 </nav>
             </div>
         </div>
-        
+
         <!-- Loading State -->
         <div id="loading" class="text-center my-5">
             <div class="spinner-border text-primary" role="status">
@@ -84,32 +92,33 @@
             </div>
             <p class="mt-2">กำลังโหลดข้อมูลสินค้า...</p>
         </div>
-        
+
         <!-- Error State -->
         <div id="error-container" class="alert alert-danger my-5" style="display: none;">
             <p id="error-message">ไม่สามารถโหลดข้อมูลสินค้าได้ กรุณาลองใหม่อีกครั้ง</p>
         </div>
-        
+
         <!-- Product Detail -->
         <div id="product-detail" class="row" style="display: none;">
             <div class="col-md-6 mb-4">
                 <div id="product-image-container" class="text-center">
-                    <img id="main-product-image" src="" alt="" class="img-fluid rounded" style="max-height: 400px; object-fit: contain;">
+                    <img id="main-product-image" src="" alt="" class="img-fluid rounded"
+                        style="max-height: 400px; object-fit: contain;">
                 </div>
                 <div id="product-thumbnails" class="row mt-3">
                     <!-- Thumbnails will be added here -->
                 </div>
             </div>
-            
+
             <div class="col-md-6">
                 <h1 id="product-name" class="mb-3"></h1>
                 <div class="mb-3">
                     <span class="h3 text-primary" id="product-price"></span>
                     <span id="product-stock-status" class="badge bg-success ms-2">มีสินค้า</span>
                 </div>
-                
+
                 <div id="product-description" class="mb-4"></div>
-                
+
                 <div class="row mb-4 align-items-center">
                     <div class="col-auto">
                         <label for="quantity" class="form-label">จำนวน:</label>
@@ -122,7 +131,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <button id="add-to-cart" class="btn btn-primary btn-lg me-2">
                     <i class="fas fa-cart-plus me-2"></i>เพิ่มลงตะกร้า
                 </button>
@@ -131,7 +140,7 @@
                 </button>
             </div>
         </div>
-        
+
         <!-- Related Products -->
         <div class="mt-5 mb-4">
             <h3>สินค้าที่เกี่ยวข้อง</h3>
@@ -154,10 +163,12 @@
                 <div class="col-lg-4">
                     <div class="mb-4">
                         <div class="d-flex align-items-center mb-3">
-                            <img class="rounded-circle me-3" width="50" height="50" src="assets/img/team/S__9469964_0.jpg">
+                            <img class="rounded-circle me-3" width="50" height="50"
+                                src="assets/img/team/S__9469964_0.jpg">
                             <h4 class="fw-bold mb-0 text-white">TANYARAT</h4>
                         </div>
-                        <p class="text-white-50 mb-4">เราพร้อมดูแลร่างกายของคุณเสมือนญาติของเรา ให้ผลิตภัณฑ์ธัญญรัตน์ดูแลคุณ</p>
+                        <p class="text-white-50 mb-4">เราพร้อมดูแลร่างกายของคุณเสมือนญาติของเรา
+                            ให้ผลิตภัณฑ์ธัญญรัตน์ดูแลคุณ</p>
                         <div class="d-flex">
                             <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-facebook"></i></a>
                             <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-instagram"></i></a>
@@ -165,16 +176,17 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-lg-2 col-md-4">
                     <h5 class="fw-bold mb-4 text-white">บริการ</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2"><a href="shop.html" class="text-decoration-none text-white-50">สินค้า</a></li>
                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เสริมความงาม</a></li>
-                        <li class="mb-2"><a href="projects.html" class="text-decoration-none text-white-50">การออกงาน</a></li>
+                        <li class="mb-2"><a href="projects.html"
+                                class="text-decoration-none text-white-50">การออกงาน</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="col-lg-2 col-md-4">
                     <h5 class="fw-bold mb-4 text-white">เกี่ยวกับ</h5>
                     <ul class="list-unstyled">
@@ -182,19 +194,20 @@
                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">ทีมงาน</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="col-lg-4 col-md-4">
                     <h5 class="fw-bold mb-4 text-white">ติดต่อเรา</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2 text-white-50"><i class="fa fa-map-marker me-2"></i> 114 หมู่ 8 ต.ค่ายบกหวาน อ.เมือง จ.หนองคาย 43100</li>
+                        <li class="mb-2 text-white-50"><i class="fa fa-map-marker me-2"></i> 114 หมู่ 8 ต.ค่ายบกหวาน
+                            อ.เมือง จ.หนองคาย 43100</li>
                         <li class="mb-2 text-white-50"><i class="fa fa-phone me-2"></i> 091-898-1595</li>
                         <li class="mb-2 text-white-50"><i class="fa fa-line me-2"></i> kaii8-114</li>
                     </ul>
                 </div>
             </div>
-            
+
             <hr class="my-4 text-white-50">
-            
+
             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center">
                 <p class="text-white-50 mb-lg-0">© 2024 TANYARAT. สงวนลิขสิทธิ์.</p>
                 <div>
@@ -208,6 +221,8 @@
     <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/cart.js"></script>
     <script src="assets/js/common.js"></script>
+    <script src="assets/js/liff-nav.js"></script>
     <script src="assets/js/product-detail.js"></script>
 </body>
-</html> 
+
+</html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th" data-bs-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,10 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <!-- Google Fonts -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Thai:300,400,500,600,700&amp;display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Thai:300,400,500,600,700&amp;display=swap">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
     <!-- Theme CSS -->
@@ -16,14 +19,17 @@
     <!-- Custom CSS for Cart -->
     <link rel="stylesheet" href="assets/css/cart.css">
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-md sticky-top navbar-shrink py-3 navbar-light" id="mainNav">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="index.html">
-                 <span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon">
-                     <img class="rounded-circle flex-shrink-0 me-3 fit-cover" width="75" height="75" src="assets/img/team/S__9469964_0.jpg">
-                 </span>
+                <span
+                    class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon">
+                    <img class="rounded-circle flex-shrink-0 me-3 fit-cover" width="75" height="75"
+                        src="assets/img/team/S__9469964_0.jpg">
+                </span>
                 <span style="font-weight: 600; letter-spacing: 1px;">TANYARAT</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -52,7 +58,8 @@
                     <a href="login.html" class="btn btn-outline-secondary me-2 d-none" id="navLogin">เข้าสู่ระบบ</a>
                     <a href="register.html" class="btn btn-secondary d-none" id="navRegister">สมัครสมาชิก</a>
                     <div class="nav-item dropdown d-none" id="navAccount">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user me-1"></i> บัญชี
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -101,26 +108,26 @@
                     <!-- Cart Summary -->
                     <div class="cart-summary">
                         <h4 class="summary-title">สรุปคำสั่งซื้อ</h4>
-                        
+
                         <div class="summary-row">
                             <span>ราคาสินค้าทั้งหมด</span>
                             <span id="cart-subtotal">฿0.00</span>
                         </div>
-                        
+
                         <div class="summary-row">
                             <span>ค่าจัดส่ง</span>
                             <span id="shipping-cost">฿50.00</span>
                         </div>
-                        
+
                         <div class="summary-row summary-total">
                             <span>ยอดรวมทั้งสิ้น</span>
                             <span id="cart-total">฿0.00</span>
                         </div>
-                        
+
                         <button id="checkout-btn" class="btn btn-primary checkout-btn">
                             ดำเนินการสั่งซื้อ
                         </button>
-                        
+
                         <!-- Promo Code Section -->
                         <div class="promo-code">
                             <h5>รหัสส่วนลด</h5>
@@ -138,58 +145,62 @@
     <!-- Footer -->
     <footer class="bg-primary-gradient pt-5">
         <div class="container py-4 py-lg-5">
-             <div class="row g-5">
-                 <div class="col-lg-4">
-                     <div class="mb-4">
-                         <div class="d-flex align-items-center mb-3">
-                             <img class="rounded-circle me-3" width="50" height="50" src="assets/img/team/S__9469964_0.jpg">
-                             <h4 class="fw-bold mb-0 text-white">TANYARAT</h4>
-                         </div>
-                         <p class="text-white-50 mb-4">เราพร้อมดูแลร่างกายของคุณเสมือนญาติของเรา ให้ผลิตภัณฑ์ธัญญรัตน์ดูแลคุณ</p>
-                         <div class="d-flex">
-                             <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-facebook"></i></a>
-                             <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-instagram"></i></a>
-                             <a href="#" class="btn btn-outline-light btn-sm"><i class="fa fa-line"></i></a>
-                         </div>
-                     </div>
-                 </div>
-                 
-                 <div class="col-lg-2 col-md-4">
-                     <h5 class="fw-bold mb-4 text-white">บริการ</h5>
-                     <ul class="list-unstyled">
-                         <li class="mb-2"><a href="shop.html" class="text-decoration-none text-white-50">สินค้า</a></li>
-                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เสริมความงาม</a></li>
-                         <li class="mb-2"><a href="projects.html" class="text-decoration-none text-white-50">การออกงาน</a></li>
-                     </ul>
-                 </div>
-                 
-                 <div class="col-lg-2 col-md-4">
-                     <h5 class="fw-bold mb-4 text-white">เกี่ยวกับ</h5>
-                     <ul class="list-unstyled">
-                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เกี่ยวกับเรา</a></li>
-                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">ทีมงาน</a></li>
-                     </ul>
-                 </div>
-                 
-                 <div class="col-lg-4 col-md-4">
-                     <h5 class="fw-bold mb-4 text-white">ติดต่อเรา</h5>
-                      <ul class="list-unstyled">
-                         <li class="mb-2 text-white-50"><i class="fa fa-map-marker me-2"></i> 114 หมู่ 8 ต.ค่ายบกหวาน อ.เมือง จ.หนองคาย 43100</li>
-                         <li class="mb-2 text-white-50"><i class="fa fa-phone me-2"></i> 091-898-1595</li>
-                         <li class="mb-2 text-white-50"><i class="fa fa-line me-2"></i> kaii8-114</li>
-                      </ul>
-                 </div>
-             </div>
-             
-             <hr class="my-4 text-white-50">
-             
-             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center">
-                 <p class="text-white-50 mb-lg-0">© 2024 TANYARAT. สงวนลิขสิทธิ์.</p>
-                 <div>
-                     <a href="#" class="text-decoration-none text-white-50 me-3">นโยบายความเป็นส่วนตัว</a>
-                     <a href="#" class="text-decoration-none text-white-50">เงื่อนไขการใช้บริการ</a>
-                 </div>
-             </div>
+            <div class="row g-5">
+                <div class="col-lg-4">
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <img class="rounded-circle me-3" width="50" height="50"
+                                src="assets/img/team/S__9469964_0.jpg">
+                            <h4 class="fw-bold mb-0 text-white">TANYARAT</h4>
+                        </div>
+                        <p class="text-white-50 mb-4">เราพร้อมดูแลร่างกายของคุณเสมือนญาติของเรา
+                            ให้ผลิตภัณฑ์ธัญญรัตน์ดูแลคุณ</p>
+                        <div class="d-flex">
+                            <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-facebook"></i></a>
+                            <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-instagram"></i></a>
+                            <a href="#" class="btn btn-outline-light btn-sm"><i class="fa fa-line"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="fw-bold mb-4 text-white">บริการ</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="shop.html" class="text-decoration-none text-white-50">สินค้า</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เสริมความงาม</a></li>
+                        <li class="mb-2"><a href="projects.html"
+                                class="text-decoration-none text-white-50">การออกงาน</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="fw-bold mb-4 text-white">เกี่ยวกับ</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เกี่ยวกับเรา</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">ทีมงาน</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-4">
+                    <h5 class="fw-bold mb-4 text-white">ติดต่อเรา</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2 text-white-50"><i class="fa fa-map-marker me-2"></i> 114 หมู่ 8 ต.ค่ายบกหวาน
+                            อ.เมือง จ.หนองคาย 43100</li>
+                        <li class="mb-2 text-white-50"><i class="fa fa-phone me-2"></i> 091-898-1595</li>
+                        <li class="mb-2 text-white-50"><i class="fa fa-line me-2"></i> kaii8-114</li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr class="my-4 text-white-50">
+
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center">
+                <p class="text-white-50 mb-lg-0">© 2024 TANYARAT. สงวนลิขสิทธิ์.</p>
+                <div>
+                    <a href="#" class="text-decoration-none text-white-50 me-3">นโยบายความเป็นส่วนตัว</a>
+                    <a href="#" class="text-decoration-none text-white-50">เงื่อนไขการใช้บริการ</a>
+                </div>
+            </div>
         </div>
     </footer>
 
@@ -226,14 +237,16 @@
     <script src="assets/js/cart.js"></script>
     <!-- Common JS (for navbar login state) -->
     <script src="assets/js/common.js"></script>
+    <!-- LIFF Navigation Helper -->
+    <script src="assets/js/liff-nav.js"></script>
     <!-- Custom JS for this page -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Function to format price in Thai Baht
             function formatPrice(price) {
                 return '฿' + parseFloat(price).toFixed(2);
             }
-            
+
             // Function to render cart items
             function renderCart() {
                 const cart = getCart();
@@ -241,10 +254,10 @@
                 const emptyCartMessage = document.getElementById('empty-cart-message');
                 const cartItemTemplate = document.getElementById('cart-item-template');
                 const checkoutBtn = document.getElementById('checkout-btn');
-                
+
                 // Clear previous items
                 cartItemsContainer.innerHTML = '';
-                
+
                 // Show/hide empty cart message
                 if (cart.length === 0) {
                     emptyCartMessage.classList.remove('d-none');
@@ -254,82 +267,83 @@
                     emptyCartMessage.classList.add('d-none');
                     cartItemsContainer.classList.remove('d-none');
                     checkoutBtn.disabled = false;
-                    
+
                     // Add cart items
                     cart.forEach(item => {
                         const cartItemNode = document.importNode(cartItemTemplate.content, true);
                         const cartItem = cartItemNode.querySelector('.cart-item');
-                        
+
                         cartItem.dataset.productId = item.id;
                         cartItem.querySelector('.cart-item-image').src = item.image;
                         cartItem.querySelector('.cart-item-image').alt = item.name;
                         cartItem.querySelector('.cart-item-title').textContent = item.name;
                         cartItem.querySelector('.cart-item-price').textContent = formatPrice(item.price);
                         cartItem.querySelector('.quantity-input').value = item.quantity;
-                        
+
                         // Add event listeners
-                        cartItem.querySelector('.increase-btn').addEventListener('click', function() {
+                        cartItem.querySelector('.increase-btn').addEventListener('click', function () {
                             const input = this.parentNode.querySelector('.quantity-input');
                             const newQuantity = parseInt(input.value) + 1;
                             input.value = newQuantity;
                             updateCartItemQuantity(item.id, newQuantity);
                             updateCartSummary();
                         });
-                        
-                        cartItem.querySelector('.decrease-btn').addEventListener('click', function() {
+
+                        cartItem.querySelector('.decrease-btn').addEventListener('click', function () {
                             const input = this.parentNode.querySelector('.quantity-input');
                             const newQuantity = Math.max(1, parseInt(input.value) - 1);
                             input.value = newQuantity;
                             updateCartItemQuantity(item.id, newQuantity);
                             updateCartSummary();
                         });
-                        
-                        cartItem.querySelector('.quantity-input').addEventListener('change', function() {
+
+                        cartItem.querySelector('.quantity-input').addEventListener('change', function () {
                             const newQuantity = Math.max(1, parseInt(this.value));
                             this.value = newQuantity;
                             updateCartItemQuantity(item.id, newQuantity);
                             updateCartSummary();
                         });
-                        
-                        cartItem.querySelector('.remove-btn').addEventListener('click', function() {
+
+                        cartItem.querySelector('.remove-btn').addEventListener('click', function () {
                             removeFromCart(item.id);
                             renderCart();
                             updateCartSummary();
                         });
-                        
+
                         cartItemsContainer.appendChild(cartItemNode);
                     });
                 }
-                
+
                 // Update cart summary
                 updateCartSummary();
             }
-            
+
             // Function to update cart summary
             function updateCartSummary() {
                 const subtotalElement = document.getElementById('cart-subtotal');
                 const shippingCostElement = document.getElementById('shipping-cost');
                 const totalElement = document.getElementById('cart-total');
-                
+
                 const subtotal = getCartTotal();
                 const shippingCost = subtotal > 0 ? 50 : 0; // ค่าจัดส่ง 50 บาท ถ้ามีสินค้าในตะกร้า
                 const total = subtotal + shippingCost;
-                
+
                 subtotalElement.textContent = formatPrice(subtotal);
                 shippingCostElement.textContent = formatPrice(shippingCost);
                 totalElement.textContent = formatPrice(total);
             }
-            
+
             // Checkout button event
-            document.getElementById('checkout-btn').addEventListener('click', function() {
+            document.getElementById('checkout-btn').addEventListener('click', function () {
                 if (getCart().length > 0) {
                     window.location.href = 'checkout.html';
                 }
             });
-            
+
             // Initialize cart display
             renderCart();
         });
     </script>
 </body>
-</html> 
+
+</html>
