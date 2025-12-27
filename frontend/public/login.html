@@ -1,147 +1,309 @@
 <!DOCTYPE html>
 <html lang="th" data-bs-theme="light">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>เข้าสู่ระบบ - Tanyarat</title>
-    <!-- Bootstrap CSS -->
+    <title>เข้าสู่ระบบ - TANYARAT</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <!-- Google Fonts -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Thai:300,400,500,600,700&amp;display=swap">
-    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Thai:300,400,500,600,700&display=swap">
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
-    <!-- Theme CSS -->
     <link rel="stylesheet" href="assets/css/theme.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #e8e0d8 100%);
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #5a4a3a 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid white;
+            margin-bottom: 15px;
+        }
+
+        .login-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .login-subtitle {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .login-body {
+            padding: 40px 30px;
+        }
+
+        .btn-line {
+            background: #06C755;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-line:hover {
+            background: #05a847;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-line img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #999;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .divider span {
+            padding: 0 15px;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(122, 98, 74, 0.1);
+        }
+
+        .btn-email {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .btn-email:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .login-footer {
+            text-align: center;
+            padding: 0 30px 30px;
+        }
+
+        .login-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            border-radius: 12px;
+        }
+
+        .benefits {
+            background: #f8f5f1;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .benefits h6 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .benefits ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #666;
+        }
+
+        .benefits li {
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-md sticky-top navbar-shrink py-3 navbar-light" id="mainNav">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
-                 <span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon">
-                     <img class="rounded-circle flex-shrink-0 me-3 fit-cover" width="75" height="75" src="assets/img/team/S__9469964_0.jpg">
-                 </span>
-                <span style="font-weight: 600; letter-spacing: 1px;">TANYARAT</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">หน้าแรก</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="shop.html">สินค้า</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="contacts.html">ติดต่อเรา</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="login.html">เข้าสู่ระบบ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="register.html">สมัครสมาชิก</a>
-                    </li>
-                </ul>
-                 <a class="btn btn-primary shadow" role="button" href="/api/shop/cart">
-                     <i class="fa fa-shopping-cart me-2"></i>ตระกร้าสินค้า
-                 </a>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="assets/img/team/S__9469964_0.jpg" alt="TANYARAT" class="login-logo">
+                <h1 class="login-title">TANYARAT</h1>
+                <p class="login-subtitle">ยินดีต้อนรับกลับมา</p>
             </div>
-        </div>
-    </nav>
 
-    <section class="py-5">
-        <div class="container py-5">
-            <div class="row justify-content-center">
-                <div class="col-md-8 col-lg-6 col-xl-5">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body p-5">
-                            <div class="text-center mb-4">
-                                 <span class="bs-icon-lg bs-icon-circle bs-icon-primary shadow bs-icon my-4">
-                                     <i class="fa fa-user"></i>
-                                 </span>
-                            </div>
-                            <h2 class="text-center fw-bold mb-4">เข้าสู่ระบบ</h2>
-                            <form id="login-form" method="post">
-                                <div id="login-error" class="alert alert-danger d-none" role="alert"></div>
-                                <div class="mb-3">
-                                    <input class="form-control" type="email" id="email" name="email" placeholder="อีเมล" required>
-                                </div>
-                                <div class="mb-3">
-                                    <input class="form-control" type="password" id="password" name="password" placeholder="รหัสผ่าน" required>
-                                </div>
-                                <div class="mb-3">
-                                    <button class="btn btn-primary shadow d-block w-100" type="submit" id="login-button">เข้าสู่ระบบ</button>
-                                </div>
-                                <p class="text-muted text-center">ยังไม่มีบัญชี? <a href="register.html">สมัครสมาชิก</a></p>
-                            </form>
-                        </div>
-                    </div>
+            <div class="login-body">
+                <!-- Error Alert -->
+                <div id="loginError" class="alert alert-danger d-none" role="alert"></div>
+
+                <!-- Benefits -->
+                <div class="benefits">
+                    <h6><i class="fa fa-gift me-2"></i>สิทธิพิเศษสำหรับสมาชิก</h6>
+                    <ul>
+                        <li>ติดตามสถานะคำสั่งซื้อได้ทันที</li>
+                        <li>รับแจ้งเตือนโปรโมชั่นผ่าน LINE</li>
+                        <li>สะสมแต้มแลกส่วนลด</li>
+                    </ul>
                 </div>
+
+                <!-- LINE Login Button (Primary) -->
+                <a href="/api/line/web-login" class="btn-line" id="lineLoginBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                        <path
+                            d="M12 2C6.48 2 2 5.82 2 10.5c0 2.89 1.92 5.42 4.83 6.89-.11.52-.7 3.36-.73 3.58 0 0-.01.11.05.15.06.04.13.02.13.02.17-.02 2.01-1.31 2.93-1.93.91.14 1.84.29 2.79.29 5.52 0 10-3.82 10-8.5S17.52 2 12 2z" />
+                    </svg>
+                    เข้าสู่ระบบด้วย LINE
+                </a>
+
+                <!-- Divider -->
+                <div class="divider">
+                    <span>หรือ</span>
+                </div>
+
+                <!-- Email/Password Form -->
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <input type="email" class="form-control" id="email" placeholder="อีเมล" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" class="form-control" id="password" placeholder="รหัสผ่าน" required>
+                    </div>
+                    <button type="submit" class="btn-email" id="emailLoginBtn">
+                        เข้าสู่ระบบด้วยอีเมล
+                    </button>
+                </form>
+            </div>
+
+            <div class="login-footer">
+                <p class="text-muted mb-2">ยังไม่มีบัญชี? <a href="register.html">สมัครสมาชิก</a></p>
+                <p class="text-muted mb-0"><a href="index.html">← กลับหน้าหลัก</a></p>
             </div>
         </div>
-    </section>
-
-    <footer class="bg-primary-gradient pt-5">
-        <div class="container py-4 py-lg-5">
-             <div class="row g-5">
-                 <div class="col-lg-4">
-                     <div class="mb-4">
-                         <div class="d-flex align-items-center mb-3">
-                             <img class="rounded-circle me-3" width="50" height="50" src="assets/img/team/S__9469964_0.jpg">
-                             <h4 class="fw-bold mb-0 text-white">TANYARAT</h4>
-                         </div>
-                         <p class="text-white-50 mb-4">เราพร้อมดูแลร่างกายของคุณเสมือนญาติของเรา ให้ผลิตภัณฑ์ธัญญรัตน์ดูแลคุณ</p>
-                         <div class="d-flex">
-                             <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-facebook"></i></a>
-                             <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="fa fa-instagram"></i></a>
-                             <a href="#" class="btn btn-outline-light btn-sm"><i class="fa fa-line"></i></a>
-                         </div>
-                     </div>
-                 </div>
-                 
-                 <div class="col-lg-2 col-md-4">
-                     <h5 class="fw-bold mb-4 text-white">บริการ</h5>
-                     <ul class="list-unstyled">
-                         <li class="mb-2"><a href="shop.html" class="text-decoration-none text-white-50">สินค้า</a></li>
-                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เสริมความงาม</a></li>
-                         <li class="mb-2"><a href="projects.html" class="text-decoration-none text-white-50">การออกงาน</a></li>
-                     </ul>
-                 </div>
-                 
-                 <div class="col-lg-2 col-md-4">
-                     <h5 class="fw-bold mb-4 text-white">เกี่ยวกับ</h5>
-                     <ul class="list-unstyled">
-                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">เกี่ยวกับเรา</a></li>
-                         <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">ทีมงาน</a></li>
-                     </ul>
-                 </div>
-                 
-                 <div class="col-lg-4 col-md-4">
-                     <h5 class="fw-bold mb-4 text-white">ติดต่อเรา</h5>
-                      <ul class="list-unstyled">
-                         <li class="mb-2 text-white-50"><i class="fa fa-map-marker me-2"></i> 114 หมู่ 8 ต.ค่ายบกหวาน อ.เมือง จ.หนองคาย 43100</li>
-                         <li class="mb-2 text-white-50"><i class="fa fa-phone me-2"></i> 091-898-1595</li>
-                         <li class="mb-2 text-white-50"><i class="fa fa-line me-2"></i> kaii8-114</li>
-                      </ul>
-                 </div>
-             </div>
-             
-             <hr class="my-4 text-white-50">
-             
-             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center">
-                 <p class="text-white-50 mb-lg-0">© 2024 TANYARAT. สงวนลิขสิทธิ์.</p>
-                 <div>
-                     <a href="#" class="text-decoration-none text-white-50 me-3">นโยบายความเป็นส่วนตัว</a>
-                     <a href="#" class="text-decoration-none text-white-50">เงื่อนไขการใช้บริการ</a>
-                 </div>
-             </div>
-        </div>
-    </footer>
+    </div>
 
     <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/login.js"></script> 
-    <script src="assets/js/common.js"></script>
+    <script>
+        // Check if already logged in
+        const token = localStorage.getItem('token');
+        if (token) {
+            window.location.href = '/account.html';
+        }
+
+        // Check for errors from callback
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        if (error) {
+            const errorMessages = {
+                'access_denied': 'คุณยกเลิกการเข้าสู่ระบบ',
+                'login_failed': 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ',
+                'callback_failed': 'ไม่สามารถเชื่อมต่อกับ LINE ได้',
+                'no_code': 'ไม่ได้รับข้อมูลจาก LINE'
+            };
+            showError(errorMessages[error] || 'เกิดข้อผิดพลาด');
+        }
+
+        // Email login handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showError('กรุณากรอกอีเมลและรหัสผ่าน');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success && data.user?.token) {
+                    // Store token
+                    localStorage.setItem('token', data.user.token);
+                    localStorage.setItem('authToken', data.user.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    document.cookie = `token=${data.user.token}; path=/; max-age=${30 * 24 * 60 * 60}`;
+
+                    // Redirect
+                    const redirect = urlParams.get('redirect') || '/account.html';
+                    window.location.href = redirect;
+                } else {
+                    showError(data.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+                }
+            } catch (err) {
+                showError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            }
+        });
+
+        function showError(message) {
+            const errorEl = document.getElementById('loginError');
+            errorEl.textContent = message;
+            errorEl.classList.remove('d-none');
+        }
+    </script>
 </body>
-</html> 
+
+</html>

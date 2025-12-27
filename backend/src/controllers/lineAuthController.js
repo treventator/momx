@@ -22,18 +22,18 @@ const verifyLineToken = async (accessToken) => {
     const verifyResponse = await axios.get(
       `https://api.line.me/oauth2/v2.1/verify?access_token=${accessToken}`
     );
-    
+
     if (verifyResponse.data.client_id !== process.env.LINE_CHANNEL_ID) {
       throw new Error('Invalid LINE channel');
     }
-    
+
     // Get user profile
     const profileResponse = await axios.get('https://api.line.me/v2/profile', {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
     });
-    
+
     return {
       success: true,
       profile: profileResponse.data
@@ -55,17 +55,17 @@ const verifyLineToken = async (accessToken) => {
 exports.lineAuth = async (req, res) => {
   try {
     const { accessToken, idToken } = req.body;
-    
+
     if (!accessToken) {
       return res.status(400).json({
         success: false,
         message: 'กรุณาระบุ LINE Access Token'
       });
     }
-    
+
     // Verify LINE token and get profile
     const lineResult = await verifyLineToken(accessToken);
-    
+
     if (!lineResult.success) {
       return res.status(401).json({
         success: false,
@@ -73,12 +73,12 @@ exports.lineAuth = async (req, res) => {
         error: lineResult.error
       });
     }
-    
+
     const { userId, displayName, pictureUrl, statusMessage } = lineResult.profile;
-    
+
     // Find or create user
     let user = await User.findOne({ 'lineProfile.lineUserId': userId });
-    
+
     if (!user) {
       // Create new user with LINE profile
       user = await User.create({
@@ -92,7 +92,7 @@ exports.lineAuth = async (req, res) => {
         firstName: displayName,
         isActive: true
       });
-      
+
       info(`New LINE user registered: ${userId}`, { displayName });
     } else {
       // Update LINE profile if changed
@@ -100,13 +100,13 @@ exports.lineAuth = async (req, res) => {
       user.lineProfile.pictureUrl = pictureUrl;
       user.lineProfile.statusMessage = statusMessage;
       await user.save();
-      
+
       info(`LINE user logged in: ${userId}`, { displayName });
     }
-    
+
     // Generate JWT token
     const token = generateToken(user._id);
-    
+
     res.status(200).json({
       success: true,
       message: user.createdAt === user.updatedAt ? 'ลงทะเบียนสำเร็จ' : 'เข้าสู่ระบบสำเร็จ',
@@ -143,24 +143,24 @@ exports.lineAuth = async (req, res) => {
 exports.updateLineProfile = async (req, res) => {
   try {
     const { firstName, lastName, phoneNumber, email } = req.body;
-    
+
     const user = await User.findById(req.user._id);
-    
+
     if (!user) {
       return res.status(404).json({
         success: false,
         message: 'ไม่พบข้อมูลผู้ใช้'
       });
     }
-    
+
     // Update fields if provided
     if (firstName) user.firstName = firstName;
     if (lastName) user.lastName = lastName;
     if (phoneNumber) user.phoneNumber = phoneNumber;
     if (email) user.email = email;
-    
+
     await user.save();
-    
+
     res.status(200).json({
       success: true,
       message: 'อัพเดทข้อมูลสำเร็จ',
@@ -195,14 +195,14 @@ exports.updateLineProfile = async (req, res) => {
 exports.getLineProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
-    
+
     if (!user) {
       return res.status(404).json({
         success: false,
         message: 'ไม่พบข้อมูลผู้ใช้'
       });
     }
-    
+
     res.status(200).json({
       success: true,
       user: {
@@ -237,14 +237,14 @@ exports.getLineProfile = async (req, res) => {
 exports.verifyIdToken = async (req, res) => {
   try {
     const { idToken } = req.body;
-    
+
     if (!idToken) {
       return res.status(400).json({
         success: false,
         message: 'กรุณาระบุ ID Token'
       });
     }
-    
+
     // Verify ID Token with LINE
     const response = await axios.post(
       'https://api.line.me/oauth2/v2.1/verify',
@@ -258,9 +258,9 @@ exports.verifyIdToken = async (req, res) => {
         }
       }
     );
-    
+
     const { sub: userId, name, picture, email } = response.data;
-    
+
     res.status(200).json({
       success: true,
       profile: {

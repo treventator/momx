@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const lineAuthController = require('../controllers/lineAuthController');
+const lineWebAuthController = require('../controllers/lineWebAuthController');
 const { auth } = require('../middlewares/authMiddleware');
 
 /**
@@ -11,6 +12,10 @@ const { auth } = require('../middlewares/authMiddleware');
 // Public routes - ไม่ต้อง login
 router.post('/auth', lineAuthController.lineAuth);           // Login/Register ผ่าน LINE LIFF
 router.post('/verify', lineAuthController.verifyIdToken);    // Verify ID Token
+
+// LINE Login for Web (non-LIFF)
+router.get('/web-login', lineWebAuthController.webLogin);    // Redirect to LINE authorization
+router.get('/callback', lineWebAuthController.webCallback);  // Handle callback from LINE
 
 // Protected routes - ต้อง login แล้ว
 router.get('/me', auth, lineAuthController.getLineProfile);           // ดึงข้อมูลโปรไฟล์
