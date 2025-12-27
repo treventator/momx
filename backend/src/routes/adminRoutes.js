@@ -6,6 +6,9 @@ const userController = require('../controllers/userController');
 const orderController = require('../controllers/orderController');
 const { auth, adminAuth } = require('../middlewares/authMiddleware');
 const authController = require('../controllers/authController');
+const { uploadMultiple, handleUploadError, getImageUrl, deleteImageFile } = require('../middlewares/uploadMiddleware');
+const Product = require('../models/Product');
+const path = require('path');
 
 // Authentication
 router.post('/login', authController.login);
@@ -15,14 +18,131 @@ router.route('/products')
   .get(auth, adminAuth, productController.getAllAdminProducts)
   .post(auth, adminAuth, productController.createProduct);
 
+// ==================== IMAGE UPLOAD (must be before /products/:id) ====================
+
+// Upload images for product
+router.post('/products/upload', auth, adminAuth, (req, res, next) => {
+  uploadMultiple(req, res, (err) => {
+    if (err) {
+      return handleUploadError(err, req, res, next);
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'กรุณาเลือกรูปภาพ'
+      });
+    }
+
+    // Return uploaded file info
+    const images = req.files.map((file, index) => ({
+      url: getImageUrl(file.filename),
+      filename: file.filename,
+      originalName: file.originalname,
+      size: file.size,
+      isMain: index === 0 // First image is main by default
+    }));
+
+    res.json({
+      success: true,
+      message: `อัพโหลดสำเร็จ ${images.length} รูป`,
+      data: { images }
+    });
+  });
+});
+
+// Create product with images (combined endpoint)
+router.post('/products/with-images', auth, adminAuth, (req, res, next) => {
+  uploadMultiple(req, res, async (err) => {
+    if (err) {
+      return handleUploadError(err, req, res, next);
+    }
+
+    try {
+      // Parse product data from form
+      const productData = JSON.parse(req.body.productData || '{}');
+
+      // Process uploaded images
+      const images = (req.files || []).map((file, index) => ({
+        url: getImageUrl(file.filename),
+        alt: productData.name || '',
+        isMain: index === 0
+      }));
+
+      // Merge images into product data
+      productData.images = images;
+
+      // Generate unique SKU (always add timestamp to prevent duplicate)
+      if (!productData.sku) {
+        productData.sku = `SKU-${Date.now()}`;
+      } else {
+        // Add timestamp suffix to user-provided SKU to ensure uniqueness
+        productData.sku = `${productData.sku}-${Date.now()}`;
+      }
+
+      // Remove category if it's a string (not ObjectId)
+      if (productData.category && typeof productData.category === 'string') {
+        // Check if it's a valid ObjectId
+        const mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(productData.category)) {
+          delete productData.category; // Remove invalid category
+        }
+      }
+
+      // Create product
+      const product = await Product.create(productData);
+
+      res.status(201).json({
+        success: true,
+        message: 'สร้างสินค้าสำเร็จ',
+        data: product
+      });
+    } catch (error) {
+      console.error('Create product error:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message || 'เกิดข้อผิดพลาดในการสร้างสินค้า'
+      });
+    }
+  });
+});
+
+// Stock Management (specific routes before :id)
+router.put('/products/bulk-stock', auth, adminAuth, productController.bulkUpdateStock);
+
+// Delete an image
+router.delete('/products/images/:filename', auth, adminAuth, async (req, res) => {
+  try {
+    const { filename } = req.params;
+    const deleted = deleteImageFile(filename);
+
+    if (deleted) {
+      res.json({
+        success: true,
+        message: 'ลบรูปภาพสำเร็จ'
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'ไม่พบไฟล์'
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการลบรูปภาพ'
+    });
+  }
+});
+
+// Product by ID routes (must be after specific routes)
 router.route('/products/:id')
   .get(auth, adminAuth, productController.getProductById)
   .put(auth, adminAuth, productController.updateProduct)
   .delete(auth, adminAuth, productController.deleteProduct);
 
-// Stock Management
 router.put('/products/:id/stock', auth, adminAuth, productController.updateStock);
-router.put('/products/bulk-stock', auth, adminAuth, productController.bulkUpdateStock);
+
 
 // Category Management
 router.route('/categories')
@@ -60,90 +180,90 @@ router.get('/statistics', auth, adminAuth, async (req, res) => {
     const User = require('../models/User');
     const Product = require('../models/Product');
     const Contact = require('../models/Contact');
-    
+
     // วันนี้
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     // เดือนนี้
     const thisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-    
+
     // ยอดขายวันนี้
     const todaySalesResult = await Order.aggregate([
-      { 
-        $match: { 
+      {
+        $match: {
           createdAt: { $gte: today, $lt: tomorrow },
-          isPaid: true 
-        } 
+          isPaid: true
+        }
       },
       { $group: { _id: null, total: { $sum: '$totalPrice' }, count: { $sum: 1 } } }
     ]);
-    
+
     // ยอดขายเดือนนี้
     const monthSalesResult = await Order.aggregate([
-      { 
-        $match: { 
+      {
+        $match: {
           createdAt: { $gte: thisMonth, $lt: nextMonth },
-          isPaid: true 
-        } 
+          isPaid: true
+        }
       },
       { $group: { _id: null, total: { $sum: '$totalPrice' }, count: { $sum: 1 } } }
     ]);
-    
+
     // ออเดอร์รอดำเนินการ
-    const pendingOrders = await Order.countDocuments({ 
-      status: { $in: ['Pending Payment', 'Processing'] } 
+    const pendingOrders = await Order.countDocuments({
+      status: { $in: ['Pending Payment', 'Processing'] }
     });
-    
+
     // ออเดอร์ใหม่วันนี้
     const newOrdersToday = await Order.countDocuments({
       createdAt: { $gte: today, $lt: tomorrow }
     });
-    
+
     // ข้อความติดต่อที่ยังไม่อ่าน
     const unreadContacts = await Contact.countDocuments({ isRead: false });
-    
+
     // ผู้ใช้ทั้งหมด
     const totalUsers = await User.countDocuments();
-    
+
     // ผู้ใช้ใหม่วันนี้
     const newUsersToday = await User.countDocuments({
       createdAt: { $gte: today, $lt: tomorrow }
     });
-    
+
     // สมาชิก LINE
-    const lineUsers = await User.countDocuments({ 
-      'lineProfile.lineUserId': { $exists: true, $ne: null } 
+    const lineUsers = await User.countDocuments({
+      'lineProfile.lineUserId': { $exists: true, $ne: null }
     });
-    
+
     // สินค้าทั้งหมด
     const totalProducts = await Product.countDocuments({ isActive: true });
-    
+
     // สินค้าใกล้หมด (stock < 5)
-    const lowStockProducts = await Product.find({ 
-      stock: { $lt: 5, $gt: 0 }, 
-      isActive: true 
+    const lowStockProducts = await Product.find({
+      stock: { $lt: 5, $gt: 0 },
+      isActive: true
     }).select('name stock sku').limit(10);
-    
+
     // สินค้าหมด
     const outOfStockCount = await Product.countDocuments({ stock: 0, isActive: true });
-    
+
     // สินค้าขายดี 5 อันดับ
     const topSellingProducts = await Product.find({ isActive: true })
       .sort({ salesCount: -1 })
       .limit(5)
       .select('name salesCount price images');
-    
+
     // ออเดอร์ล่าสุด 5 รายการ
     const recentOrders = await Order.find()
       .sort({ createdAt: -1 })
       .limit(5)
       .populate('user', 'firstName lastName lineProfile.displayName')
       .select('totalPrice status createdAt orderItems');
-    
+
     res.json({
       success: true,
       data: {
@@ -193,13 +313,13 @@ router.get('/statistics', auth, adminAuth, async (req, res) => {
 router.get('/reports/sales', auth, adminAuth, async (req, res) => {
   try {
     const Order = require('../models/Order');
-    
+
     const { startDate, endDate, groupBy = 'day' } = req.query;
-    
+
     const start = startDate ? new Date(startDate) : new Date(new Date().setDate(new Date().getDate() - 30));
     const end = endDate ? new Date(endDate) : new Date();
     end.setHours(23, 59, 59, 999);
-    
+
     let groupFormat;
     if (groupBy === 'day') {
       groupFormat = { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } };
@@ -208,7 +328,7 @@ router.get('/reports/sales', auth, adminAuth, async (req, res) => {
     } else {
       groupFormat = { $dateToString: { format: '%Y', date: '$createdAt' } };
     }
-    
+
     const salesReport = await Order.aggregate([
       {
         $match: {
@@ -226,7 +346,7 @@ router.get('/reports/sales', auth, adminAuth, async (req, res) => {
       },
       { $sort: { _id: 1 } }
     ]);
-    
+
     const summary = await Order.aggregate([
       {
         $match: {
@@ -243,7 +363,7 @@ router.get('/reports/sales', auth, adminAuth, async (req, res) => {
         }
       }
     ]);
-    
+
     res.json({
       success: true,
       data: {
@@ -265,22 +385,22 @@ router.get('/reports/sales', auth, adminAuth, async (req, res) => {
 router.get('/reports/products', auth, adminAuth, async (req, res) => {
   try {
     const Product = require('../models/Product');
-    
+
     const { limit = 20, sortBy = 'salesCount' } = req.query;
-    
+
     const sortOptions = {
       salesCount: { salesCount: -1 },
       viewCount: { viewCount: -1 },
       revenue: { revenue: -1 },
       rating: { rating: -1 }
     };
-    
+
     const products = await Product.find({ isActive: true })
       .sort(sortOptions[sortBy] || sortOptions.salesCount)
       .limit(parseInt(limit))
       .select('name price salePrice salesCount viewCount rating stock images category')
       .populate('category', 'name');
-    
+
     res.json({
       success: true,
       data: products
@@ -299,9 +419,9 @@ router.get('/reports/customers', auth, adminAuth, async (req, res) => {
   try {
     const User = require('../models/User');
     const Order = require('../models/Order');
-    
+
     const { limit = 20 } = req.query;
-    
+
     // Top customers by total spent
     const topCustomers = await Order.aggregate([
       { $match: { isPaid: true } },
@@ -342,7 +462,7 @@ router.get('/reports/customers', auth, adminAuth, async (req, res) => {
         }
       }
     ]);
-    
+
     res.json({
       success: true,
       data: topCustomers
@@ -362,14 +482,14 @@ router.post('/send-line-message', auth, adminAuth, async (req, res) => {
     const { userId, message, messageType = 'text' } = req.body;
     const User = require('../models/User');
     const lineBotService = require('../services/lineBotService');
-    
+
     if (!userId || !message) {
       return res.status(400).json({
         success: false,
         message: 'กรุณาระบุ userId และ message'
       });
     }
-    
+
     // หา LINE User ID
     const user = await User.findById(userId);
     if (!user || !user.lineProfile?.lineUserId) {
@@ -378,16 +498,16 @@ router.post('/send-line-message', auth, adminAuth, async (req, res) => {
         message: 'ไม่พบผู้ใช้หรือผู้ใช้ไม่ได้เชื่อมต่อ LINE'
       });
     }
-    
+
     let lineMessage;
     if (messageType === 'text') {
       lineMessage = lineBotService.createTextMessage(message);
     } else {
       lineMessage = message; // Custom flex message
     }
-    
+
     const result = await lineBotService.pushMessage(user.lineProfile.lineUserId, lineMessage);
-    
+
     if (result.success) {
       res.json({
         success: true,
@@ -414,23 +534,23 @@ router.post('/broadcast-line', auth, adminAuth, async (req, res) => {
   try {
     const { message, messageType = 'text' } = req.body;
     const lineBotService = require('../services/lineBotService');
-    
+
     if (!message) {
       return res.status(400).json({
         success: false,
         message: 'กรุณาระบุ message'
       });
     }
-    
+
     let lineMessage;
     if (messageType === 'text') {
       lineMessage = lineBotService.createTextMessage(message);
     } else {
       lineMessage = message;
     }
-    
+
     const result = await lineBotService.broadcastMessage(lineMessage);
-    
+
     if (result.success) {
       res.json({
         success: true,
@@ -457,15 +577,15 @@ router.get('/inventory/low-stock', auth, adminAuth, async (req, res) => {
   try {
     const Product = require('../models/Product');
     const { threshold = 5 } = req.query;
-    
+
     const lowStockProducts = await Product.find({
       stock: { $lte: parseInt(threshold) },
       isActive: true
     })
-    .sort({ stock: 1 })
-    .select('name sku stock price images category')
-    .populate('category', 'name');
-    
+      .sort({ stock: 1 })
+      .select('name sku stock price images category')
+      .populate('category', 'name');
+
     res.json({
       success: true,
       count: lowStockProducts.length,

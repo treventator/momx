@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const { info, error, withSpan, tracer } = require('./utils/logger');
 const setupMongooseTracing = require('./utils/dbTracingMiddleware');
 const cookieParser = require('cookie-parser');
@@ -24,6 +25,10 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Serve static files for uploads
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 
 /*
 // Add request tracing middleware

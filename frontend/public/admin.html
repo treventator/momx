@@ -744,7 +744,7 @@
                             <h2 class="content-card-title">
                                 <i class="fa fa-shopping-bag me-2"></i> รายการสินค้า
                             </h2>
-                            <button class="btn-tanyarat" id="addProductBtn">
+                            <button class="btn-tanyarat" id="addProductBtn" onclick="showProductModal()">
                                 <i class="fa fa-plus me-2"></i> เพิ่มสินค้าใหม่
                             </button>
                         </div>
@@ -827,53 +827,238 @@
         </main>
     </div>
 
-    <!-- Product Modal -->
+    <!-- Product Modal - LINE Shopping Style -->
     <div class="modal fade" id="productModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content" style="border-radius: 16px;">
-                <div class="modal-header" style="border-bottom: 1px solid #f0f0f0;">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; max-height: 90vh; overflow-y: auto;">
+                <div class="modal-header"
+                    style="border-bottom: 1px solid #f0f0f0; position: sticky; top: 0; background: #fff; z-index: 10;">
                     <h5 class="modal-title" id="productModalLabel">เพิ่มสินค้าใหม่</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" style="padding: 25px;">
                     <div id="productFormError" class="alert alert-danger d-none"></div>
-                    <form id="productForm">
+                    <form id="productForm" enctype="multipart/form-data">
                         <input type="hidden" id="productId">
+
+                        <!-- Image Upload Section -->
+                        <div class="mb-4">
+                            <label class="admin-label mb-2">📷 รูปภาพสินค้า (สูงสุด 5 รูป, รูปละไม่เกิน 10MB)</label>
+                            <div id="imageUploadArea" class="image-upload-area">
+                                <div id="imagePreviewContainer" class="image-preview-container"></div>
+                                <div id="addImageBtn" class="add-image-btn"
+                                    onclick="document.getElementById('productImages').click()">
+                                    <i class="fas fa-plus" style="font-size: 24px; margin-bottom: 8px;"></i>
+                                    <span>เพิ่มรูป</span>
+                                    <small>ลากไฟล์มาวางหรือคลิก</small>
+                                </div>
+                            </div>
+                            <input type="file" id="productImages" accept="image/*" multiple style="display: none;"
+                                onchange="handleImageSelect(event)">
+                            <small class="text-muted">💡 รูปแรกจะเป็นรูปหลัก คลิก ⭐ เพื่อเปลี่ยน</small>
+                        </div>
+
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-8 mb-3">
                                 <label class="admin-label">ชื่อสินค้า *</label>
-                                <input type="text" class="admin-input" id="productName" required>
+                                <input type="text" class="admin-input" id="productName" required
+                                    placeholder="เช่น เซรั่มบำรุงผิว Organic Vitamin C">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="admin-label">หมวดหมู่</label>
-                                <input type="text" class="admin-input" id="productCategory">
+                                <select class="admin-input" id="productCategory">
+                                    <option value="">เลือกหมวดหมู่</option>
+                                    <option value="skincare">สกินแคร์</option>
+                                    <option value="supplement">อาหารเสริม</option>
+                                    <option value="bodycare">บำรุงร่างกาย</option>
+                                    <option value="haircare">บำรุงผม</option>
+                                    <option value="organic">ออร์แกนิก</option>
+                                </select>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="admin-label">ราคา (บาท) *</label>
-                                <input type="number" class="admin-input" id="productPrice" required>
+                                <input type="number" class="admin-input" id="productPrice" required min="0" step="1"
+                                    placeholder="890">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="admin-label">ราคาลด (บาท)</label>
+                                <input type="number" class="admin-input" id="productSalePrice" min="0" step="1"
+                                    placeholder="690">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="admin-label">จำนวนในคลัง *</label>
+                                <input type="number" class="admin-input" id="productStock" value="0" min="0" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="admin-label">จำนวนในคลัง</label>
-                                <input type="number" class="admin-input" id="productStock" value="0">
+                                <label class="admin-label">SKU (รหัสสินค้า)</label>
+                                <input type="text" class="admin-input" id="productSku" placeholder="ORG-VIT-C-001">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="admin-label">น้ำหนัก (กรัม)</label>
+                                <input type="number" class="admin-input" id="productWeight" min="0" placeholder="100">
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="admin-label">URL รูปภาพ</label>
-                                <input type="url" class="admin-input" id="productImageUrl">
+                                <label class="admin-label">รายละเอียดสินค้า *</label>
+                                <textarea class="admin-input" id="productDescription" rows="3" required
+                                    placeholder="อธิบายคุณสมบัติและประโยชน์ของสินค้า..."></textarea>
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="admin-label">รายละเอียดสินค้า</label>
-                                <textarea class="admin-input" id="productDescription" rows="4"></textarea>
+                                <label class="admin-label">ส่วนผสมหลัก (Organic Ingredients)</label>
+                                <textarea class="admin-input" id="productIngredients" rows="2"
+                                    placeholder="Vitamin C 20%, Hyaluronic Acid, Niacinamide..."></textarea>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="admin-label">Tags (คั่นด้วย comma)</label>
+                                <input type="text" class="admin-input" id="productTags"
+                                    placeholder="organic, vitamin c, serum, skincare">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="productActive" checked>
+                                    <label class="form-check-label" for="productActive">สินค้าพร้อมขาย</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="productFeatured">
+                                    <label class="form-check-label" for="productFeatured">⭐ สินค้าแนะนำ</label>
+                                </div>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer" style="border-top: 1px solid #f0f0f0;">
+                <div class="modal-footer"
+                    style="border-top: 1px solid #f0f0f0; position: sticky; bottom: 0; background: #fff;">
                     <button type="button" class="btn-tanyarat-outline" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button type="button" class="btn-tanyarat" id="saveProductBtn">บันทึก</button>
+                    <button type="button" class="btn-tanyarat" id="saveProductBtn" onclick="saveProduct()">
+                        <span id="saveProductText">💾 บันทึกสินค้า</span>
+                        <span id="saveProductLoading" class="d-none">
+                            <span class="spinner-border spinner-border-sm me-1"></span> กำลังบันทึก...
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+
+    <style>
+        .image-upload-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            min-height: 120px;
+            transition: all 0.3s ease;
+        }
+
+        .image-upload-area.dragover {
+            border-color: #E91E63;
+            background: rgba(233, 30, 99, 0.05);
+        }
+
+        .image-preview-container {
+            display: contents;
+        }
+
+        .image-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview-item .main-badge {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background: #FFD700;
+            color: #000;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .image-preview-item .set-main-btn {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .image-preview-item:hover .set-main-btn {
+            opacity: 1;
+        }
+
+        .image-preview-item .delete-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(255, 0, 0, 0.8);
+            color: #fff;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-preview-item:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .add-image-btn {
+            width: 100px;
+            height: 100px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .add-image-btn:hover {
+            border-color: #E91E63;
+            color: #E91E63;
+        }
+
+        .add-image-btn small {
+            font-size: 10px;
+            text-align: center;
+        }
+    </style>
+
 
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/admin.js?v=2.0"></script>

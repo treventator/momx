@@ -31,7 +31,7 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     validate: {
-      validator: function(value) {
+      validator: function (value) {
         return value <= this.price;
       },
       message: 'ราคาส่วนลดต้องน้อยกว่าหรือเท่ากับราคาปกติ'
@@ -41,7 +41,7 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     validate: {
-      validator: function(value) {
+      validator: function (value) {
         return value <= this.price;
       },
       message: 'ราคาสำหรับสมาชิกต้องน้อยกว่าหรือเท่ากับราคาปกติ'
@@ -75,8 +75,8 @@ const productSchema = new mongoose.Schema({
   ],
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-    required: [true, 'หมวดหมู่สินค้าเป็นฟิลด์บังคับ']
+    ref: 'Category'
+    // Optional - ไม่บังคับใส่หมวดหมู่
   },
   tags: [{
     type: String,
@@ -179,7 +179,7 @@ const productSchema = new mongoose.Schema({
 });
 
 // ส่วนลดเป็นเปอร์เซ็นต์
-productSchema.virtual('discountPercentage').get(function() {
+productSchema.virtual('discountPercentage').get(function () {
   if (this.salePrice === 0 || this.salePrice >= this.price) {
     return 0;
   }
@@ -187,20 +187,23 @@ productSchema.virtual('discountPercentage').get(function() {
 });
 
 // เพิ่ม virtual field ส่วนลดสำหรับสมาชิกเป็นเปอร์เซ็นต์
-productSchema.virtual('memberDiscountPercentage').get(function() {
+productSchema.virtual('memberDiscountPercentage').get(function () {
   if (this.memberPrice === 0 || this.memberPrice >= this.price) {
     return 0;
   }
   return Math.round(((this.price - this.memberPrice) / this.price) * 100);
 });
 
-// สร้าง slug จากชื่อสินค้า
-productSchema.pre('save', function(next) {
+// สร้าง slug จากชื่อสินค้า (unique by adding timestamp)
+productSchema.pre('save', function (next) {
   if (!this.slug) {
-    this.slug = this.name
+    const baseSlug = this.name
       .toLowerCase()
       .replace(/[^\w\sก-๙]/g, '')
-      .replace(/\s+/g, '-');
+      .replace(/\s+/g, '-')
+      .substring(0, 50); // Limit length
+    // Add timestamp suffix to ensure uniqueness
+    this.slug = `${baseSlug}-${Date.now()}`;
   }
   this.updatedAt = Date.now();
   next();
@@ -217,17 +220,17 @@ productSchema.index({ createdAt: -1 });
 productSchema.index({ salesCount: -1 });
 
 // เพิ่ม main image helper method
-productSchema.methods.getMainImage = function() {
+productSchema.methods.getMainImage = function () {
   if (!this.images || this.images.length === 0) {
     return null;
   }
-  
+
   const mainImage = this.images.find(image => image.isMain);
   return mainImage || this.images[0];
 };
 
 // เพิ่ม stock status helper method
-productSchema.virtual('stockStatus').get(function() {
+productSchema.virtual('stockStatus').get(function () {
   if (this.stock <= 0) {
     return 'สินค้าหมด';
   } else if (this.stock < 5) {

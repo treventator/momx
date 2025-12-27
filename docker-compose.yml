@@ -10,9 +10,9 @@ services:
     ports:
       - "4455:4455"
     volumes:
-      - ./backend/products.json:/app/backend/products.json
-      # Uncomment for development with live reload
-      # - ./backend/src:/app/backend/src
+      - ./backend/products.json:/app/products.json
+      - ./backend/uploads:/app/uploads
+      - ./backend/src:/app/src
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - PORT=4455
@@ -27,6 +27,8 @@ services:
       - LINE_CHANNEL_SECRET=${LINE_CHANNEL_SECRET}
       - LINE_CHANNEL_ACCESS_TOKEN=${LINE_CHANNEL_ACCESS_TOKEN}
       - LIFF_ID=${LIFF_ID}
+      # LINE Login callback (must be https for production)
+      - LINE_LOGIN_CALLBACK_URL=https://liff.tanyarat.online/api/line/callback
       # Optional
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:8080}
     depends_on:

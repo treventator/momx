@@ -114,7 +114,14 @@ function showDashboard() {
     initSidebar();
     loadStats();
     loadRecentOrders();
+
+    // Add Product Button handler
+    const addProductBtn = document.getElementById('addProductBtn');
+    if (addProductBtn) {
+        addProductBtn.addEventListener('click', () => showProductModal());
+    }
 }
+
 
 // ==================== SIDEBAR NAVIGATION ====================
 
@@ -286,7 +293,7 @@ async function loadProducts() {
                     <tbody>
                         ${data.products.map(p => `
                             <tr>
-                                <td><img src="${p.images?.[0] || p.imageUrl || 'assets/img/placeholder.png'}" width="50" height="50" style="object-fit:cover;border-radius:8px;"></td>
+                                <td><img src="${p.images?.[0]?.url || p.imageUrl || 'assets/img/placeholder.png'}" width="50" height="50" style="object-fit:cover;border-radius:8px;"></td>
                                 <td>${p.name}</td>
                                 <td>฿${(p.price || 0).toLocaleString()}${p.salePrice ? `<br><small class="text-danger">ลด ฿${p.salePrice.toLocaleString()}</small>` : ''}</td>
                                 <td><span class="${p.stock < 5 ? 'text-danger fw-bold' : ''}">${p.stock || 0}</span></td>
@@ -505,119 +512,294 @@ function renderOrderRow(order) {
 // ==================== PRODUCT ACTIONS ====================
 
 let currentEditProductId = null;
+let productModalInstance = null;
+let selectedImages = []; // Store selected image files
+let mainImageIndex = 0;
 
 function showProductModal(product = null) {
     currentEditProductId = product ? product._id : null;
+    selectedImages = [];
+    mainImageIndex = 0;
 
-    // Create modal if it doesn't exist
-    let modal = document.getElementById('productModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'productModal';
-        modal.className = 'admin-modal';
-        modal.innerHTML = `
-            <div class="admin-modal-content">
-                <div class="admin-modal-header">
-                    <h4 id="productModalTitle">เพิ่มสินค้าใหม่</h4>
-                    <button type="button" class="close-modal" onclick="closeProductModal()">&times;</button>
-                </div>
-                <form id="productForm" onsubmit="saveProduct(event)">
-                    <div class="form-group">
-                        <label>ชื่อสินค้า *</label>
-                        <input type="text" id="productName" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>คำอธิบาย</label>
-                        <textarea id="productDescription" class="form-control" rows="3"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group half">
-                            <label>ราคา (บาท) *</label>
-                            <input type="number" id="productPrice" class="form-control" min="0" step="0.01" required>
-                        </div>
-                        <div class="form-group half">
-                            <label>ราคาลด (บาท)</label>
-                            <input type="number" id="productSalePrice" class="form-control" min="0" step="0.01">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group half">
-                            <label>จำนวนในคลัง *</label>
-                            <input type="number" id="productStock" class="form-control" min="0" required>
-                        </div>
-                        <div class="form-group half">
-                            <label>SKU</label>
-                            <input type="text" id="productSku" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>URL รูปภาพ</label>
-                        <input type="text" id="productImage" class="form-control" placeholder="https://...">
-                    </div>
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="productActive" checked> สินค้าพร้อมขาย
-                        </label>
-                    </div>
-                    <div class="modal-actions">
-                        <button type="button" class="btn-tanyarat-outline" onclick="closeProductModal()">ยกเลิก</button>
-                        <button type="submit" class="btn-tanyarat">บันทึกสินค้า</button>
-                    </div>
-                </form>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        // Add modal styles
-        if (!document.getElementById('modalStyles')) {
-            const styles = document.createElement('style');
-            styles.id = 'modalStyles';
-            styles.textContent = `
-                .admin-modal { position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999; }
-                .admin-modal-content { background:#fff;border-radius:16px;width:90%;max-width:500px;max-height:90vh;overflow-y:auto; }
-                .admin-modal-header { display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid #eee; }
-                .admin-modal-header h4 { margin:0;font-weight:600; }
-                .close-modal { background:none;border:none;font-size:24px;cursor:pointer;color:#666; }
-                #productForm { padding:20px; }
-                .form-group { margin-bottom:15px; }
-                .form-group label { display:block;margin-bottom:5px;font-weight:500; }
-                .form-group .form-control { width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px; }
-                .form-row { display:flex;gap:15px; }
-                .form-group.half { flex:1; }
-                .modal-actions { display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:20px;border-top:1px solid #eee; }
-            `;
-            document.head.appendChild(styles);
-        }
+    // Get Bootstrap modal element
+    const modalEl = document.getElementById('productModal');
+    if (!modalEl) {
+        console.error('Product modal not found');
+        alert('ไม่พบ Modal สำหรับเพิ่มสินค้า');
+        return;
     }
 
-    // Fill form if editing
+    // Create Bootstrap modal instance if not exists
+    if (!productModalInstance) {
+        productModalInstance = new bootstrap.Modal(modalEl);
+    }
+
+    // Reset form
+    const formEl = document.getElementById('productForm');
+    if (formEl) formEl.reset();
+
+    // Clear image preview
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    if (previewContainer) previewContainer.innerHTML = '';
+
+    // Show add button
+    const addBtn = document.getElementById('addImageBtn');
+    if (addBtn) addBtn.style.display = 'flex';
+
+    // Get form elements
+    const titleEl = document.getElementById('productModalLabel');
+    const productIdEl = document.getElementById('productId');
+    const nameEl = document.getElementById('productName');
+    const categoryEl = document.getElementById('productCategory');
+    const priceEl = document.getElementById('productPrice');
+    const salePriceEl = document.getElementById('productSalePrice');
+    const stockEl = document.getElementById('productStock');
+    const skuEl = document.getElementById('productSku');
+    const weightEl = document.getElementById('productWeight');
+    const descriptionEl = document.getElementById('productDescription');
+    const ingredientsEl = document.getElementById('productIngredients');
+    const tagsEl = document.getElementById('productTags');
+    const activeEl = document.getElementById('productActive');
+    const featuredEl = document.getElementById('productFeatured');
+
+    // Fill form for edit mode
     if (product) {
-        document.getElementById('productModalTitle').textContent = 'แก้ไขสินค้า';
-        document.getElementById('productName').value = product.name || '';
-        document.getElementById('productDescription').value = product.description || '';
-        document.getElementById('productPrice').value = product.price || 0;
-        document.getElementById('productSalePrice').value = product.salePrice || '';
-        document.getElementById('productStock').value = product.stock || 0;
-        document.getElementById('productSku').value = product.sku || '';
-        document.getElementById('productImage').value = product.imageUrl || product.images?.[0] || '';
-        document.getElementById('productActive').checked = product.isActive !== false;
+        if (titleEl) titleEl.textContent = 'แก้ไขสินค้า';
+        if (productIdEl) productIdEl.value = product._id || '';
+        if (nameEl) nameEl.value = product.name || '';
+        if (categoryEl) categoryEl.value = product.category || '';
+        if (priceEl) priceEl.value = product.price || 0;
+        if (salePriceEl) salePriceEl.value = product.salePrice || '';
+        if (stockEl) stockEl.value = product.stock || 0;
+        if (skuEl) skuEl.value = product.sku || '';
+        if (weightEl) weightEl.value = product.weight || '';
+        if (descriptionEl) descriptionEl.value = product.description || '';
+        if (ingredientsEl) ingredientsEl.value = product.ingredients || '';
+        if (tagsEl) tagsEl.value = (product.tags || []).join(', ');
+        if (activeEl) activeEl.checked = product.isActive !== false;
+        if (featuredEl) featuredEl.checked = product.isFeatured === true;
+
+        // Load existing images
+        if (product.images && product.images.length > 0) {
+            product.images.forEach((img, index) => {
+                addExistingImagePreview(img.url || img, index === 0);
+            });
+        }
     } else {
-        document.getElementById('productModalTitle').textContent = 'เพิ่มสินค้าใหม่';
-        document.getElementById('productForm').reset();
-        document.getElementById('productActive').checked = true;
+        if (titleEl) titleEl.textContent = 'เพิ่มสินค้าใหม่';
+        if (productIdEl) productIdEl.value = '';
+        if (activeEl) activeEl.checked = true;
+        if (featuredEl) featuredEl.checked = false;
     }
 
-    modal.style.display = 'flex';
+    // Setup drag and drop
+    setupDragAndDrop();
+
+    // Show modal using Bootstrap API
+    productModalInstance.show();
 }
 
 function closeProductModal() {
-    const modal = document.getElementById('productModal');
-    if (modal) modal.style.display = 'none';
-    currentEditProductId = null;
+    if (productModalInstance) {
+        productModalInstance.hide();
+    }
+    selectedImages = [];
+    mainImageIndex = 0;
 }
 
+// ==================== IMAGE UPLOAD ====================
+
+function setupDragAndDrop() {
+    const uploadArea = document.getElementById('imageUploadArea');
+    if (!uploadArea) return;
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.add('dragover');
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.remove('dragover');
+        }, false);
+    });
+
+    uploadArea.addEventListener('drop', handleDrop, false);
+}
+
+function handleDrop(e) {
+    const files = e.dataTransfer.files;
+    handleFiles(files);
+}
+
+function handleImageSelect(e) {
+    const files = e.target.files;
+    handleFiles(files);
+}
+
+function handleFiles(files) {
+    const maxFiles = 5;
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+
+    for (let file of files) {
+        if (selectedImages.length >= maxFiles) {
+            alert('อัพโหลดได้สูงสุด 5 รูป');
+            break;
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+            alert(`${file.name} ไม่ใช่ไฟล์รูปภาพที่รองรับ`);
+            continue;
+        }
+
+        if (file.size > maxSize) {
+            alert(`${file.name} มีขนาดเกิน 10MB`);
+            continue;
+        }
+
+        selectedImages.push(file);
+        addImagePreview(file, selectedImages.length - 1);
+    }
+
+    updateAddButtonVisibility();
+
+    // Clear input so same file can be selected again
+    document.getElementById('productImages').value = '';
+}
+
+function addImagePreview(file, index) {
+    const container = document.getElementById('imagePreviewContainer');
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        const div = document.createElement('div');
+        div.className = 'image-preview-item';
+        div.dataset.index = index;
+
+        const isMain = index === mainImageIndex;
+
+        div.innerHTML = `
+            <img src="${e.target.result}" alt="Preview">
+            ${isMain ? '<span class="main-badge">⭐ หลัก</span>' : `<button type="button" class="set-main-btn" onclick="setMainImage(${index})">⭐</button>`}
+            <button type="button" class="delete-btn" onclick="removeImage(${index})">✕</button>
+        `;
+
+        container.appendChild(div);
+    };
+
+    reader.readAsDataURL(file);
+}
+
+function addExistingImagePreview(url, isMain) {
+    const container = document.getElementById('imagePreviewContainer');
+
+    const div = document.createElement('div');
+    div.className = 'image-preview-item existing-image';
+    div.dataset.url = url;
+
+    div.innerHTML = `
+        <img src="${url}" alt="Product image" onerror="this.src='/assets/img/no-image.png'">
+        ${isMain ? '<span class="main-badge">⭐ หลัก</span>' : '<button type="button" class="set-main-btn" onclick="setMainExisting(this)">⭐</button>'}
+        <button type="button" class="delete-btn" onclick="removeExistingImage(this)">✕</button>
+    `;
+
+    container.appendChild(div);
+}
+
+function removeImage(index) {
+    selectedImages.splice(index, 1);
+
+    // Adjust main image index
+    if (mainImageIndex >= selectedImages.length) {
+        mainImageIndex = Math.max(0, selectedImages.length - 1);
+    }
+
+    refreshImagePreviews();
+}
+
+function removeExistingImage(btn) {
+    const item = btn.closest('.image-preview-item');
+    if (item) item.remove();
+    updateAddButtonVisibility();
+}
+
+function setMainImage(index) {
+    mainImageIndex = index;
+    refreshImagePreviews();
+}
+
+function setMainExisting(btn) {
+    // Remove all main badges
+    document.querySelectorAll('.image-preview-item .main-badge').forEach(badge => {
+        const parent = badge.parentElement;
+        badge.remove();
+        const setBtn = document.createElement('button');
+        setBtn.type = 'button';
+        setBtn.className = 'set-main-btn';
+        setBtn.textContent = '⭐';
+        setBtn.onclick = function () { setMainExisting(this); };
+        parent.insertBefore(setBtn, parent.querySelector('.delete-btn'));
+    });
+
+    // Show all set-main buttons
+    document.querySelectorAll('.image-preview-item .set-main-btn').forEach(b => {
+        b.style.display = '';
+    });
+
+    // Set this as main
+    const item = btn.closest('.image-preview-item');
+    btn.remove();
+    const badge = document.createElement('span');
+    badge.className = 'main-badge';
+    badge.textContent = '⭐ หลัก';
+    item.insertBefore(badge, item.querySelector('.delete-btn'));
+}
+
+function refreshImagePreviews() {
+    const container = document.getElementById('imagePreviewContainer');
+
+    // Keep existing images
+    const existingImages = container.querySelectorAll('.existing-image');
+    container.innerHTML = '';
+    existingImages.forEach(img => container.appendChild(img));
+
+    // Re-add new images
+    selectedImages.forEach((file, index) => {
+        addImagePreview(file, index);
+    });
+
+    updateAddButtonVisibility();
+}
+
+function updateAddButtonVisibility() {
+    const addBtn = document.getElementById('addImageBtn');
+    const existingCount = document.querySelectorAll('.image-preview-item.existing-image').length;
+    const totalCount = selectedImages.length + existingCount;
+
+    if (addBtn) {
+        addBtn.style.display = totalCount >= 5 ? 'none' : 'flex';
+    }
+}
+
+
+
+// Note: saveProductBtn uses onclick in HTML - no need for addEventListener here
+// Removed duplicate event listener to prevent double submit
+
+
 async function saveProduct(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
 
     const token = localStorage.getItem('authToken');
     if (!token) {
@@ -625,34 +807,111 @@ async function saveProduct(e) {
         return;
     }
 
-    const productData = {
-        name: document.getElementById('productName').value.trim(),
-        description: document.getElementById('productDescription').value.trim(),
-        price: parseFloat(document.getElementById('productPrice').value) || 0,
-        salePrice: parseFloat(document.getElementById('productSalePrice').value) || null,
-        stock: parseInt(document.getElementById('productStock').value) || 0,
-        sku: document.getElementById('productSku').value.trim() || undefined,
-        images: document.getElementById('productImage').value.trim() ? [document.getElementById('productImage').value.trim()] : [],
-        isActive: document.getElementById('productActive').checked
-    };
+    // Show loading state
+    const saveText = document.getElementById('saveProductText');
+    const saveLoading = document.getElementById('saveProductLoading');
+    const saveBtn = document.getElementById('saveProductBtn');
+
+    if (saveText) saveText.classList.add('d-none');
+    if (saveLoading) saveLoading.classList.remove('d-none');
+    if (saveBtn) saveBtn.disabled = true;
 
     try {
-        const url = currentEditProductId
-            ? `/api/admin/products/${currentEditProductId}`
-            : '/api/admin/products';
+        // Get form values
+        const productData = {
+            name: document.getElementById('productName')?.value.trim() || '',
+            category: document.getElementById('productCategory')?.value || '',
+            description: document.getElementById('productDescription')?.value.trim() || '',
+            price: parseFloat(document.getElementById('productPrice')?.value) || 0,
+            salePrice: parseFloat(document.getElementById('productSalePrice')?.value) || 0,
+            stock: parseInt(document.getElementById('productStock')?.value) || 0,
+            sku: document.getElementById('productSku')?.value.trim() || '',
+            weight: parseFloat(document.getElementById('productWeight')?.value) || 0,
+            ingredients: document.getElementById('productIngredients')?.value.trim() || '',
+            tags: (document.getElementById('productTags')?.value || '').split(',').map(t => t.trim()).filter(t => t),
+            isActive: document.getElementById('productActive')?.checked !== false,
+            isFeatured: document.getElementById('productFeatured')?.checked === true
+        };
 
-        const method = currentEditProductId ? 'PUT' : 'POST';
+        // Validate required fields
+        if (!productData.name) {
+            alert('กรุณากรอกชื่อสินค้า');
+            resetSaveButton();
+            return;
+        }
+        if (!productData.price || productData.price <= 0) {
+            alert('กรุณากรอกราคาสินค้า');
+            resetSaveButton();
+            return;
+        }
+        if (!productData.description) {
+            alert('กรุณากรอกรายละเอียดสินค้า');
+            resetSaveButton();
+            return;
+        }
 
-        const res = await fetch(url, {
-            method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(productData)
-        });
+        let res, data;
 
-        const data = await res.json();
+        // Check if we have new images to upload
+        if (selectedImages.length > 0 && !currentEditProductId) {
+            // Create product with images using FormData
+            const formData = new FormData();
+            formData.append('productData', JSON.stringify(productData));
+
+            // Append images in correct order (main image first)
+            if (mainImageIndex > 0 && mainImageIndex < selectedImages.length) {
+                // Put main image first
+                formData.append('images', selectedImages[mainImageIndex]);
+                selectedImages.forEach((file, index) => {
+                    if (index !== mainImageIndex) {
+                        formData.append('images', file);
+                    }
+                });
+            } else {
+                selectedImages.forEach(file => {
+                    formData.append('images', file);
+                });
+            }
+
+            res = await fetch('/api/admin/products/with-images', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+        } else {
+            // Regular JSON request for update or create without new images
+            const url = currentEditProductId
+                ? `/api/admin/products/${currentEditProductId}`
+                : '/api/admin/products';
+            const method = currentEditProductId ? 'PUT' : 'POST';
+
+            // Collect existing images if any
+            const existingImages = [];
+            document.querySelectorAll('.image-preview-item.existing-image').forEach((item, index) => {
+                const url = item.dataset.url;
+                const isMain = item.querySelector('.main-badge') !== null;
+                if (url) {
+                    existingImages.push({ url, isMain, alt: productData.name });
+                }
+            });
+
+            if (existingImages.length > 0) {
+                productData.images = existingImages;
+            }
+
+            res = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(productData)
+            });
+        }
+
+        data = await res.json();
 
         if (res.ok && data.success) {
             alert(currentEditProductId ? 'แก้ไขสินค้าสำเร็จ!' : 'เพิ่มสินค้าสำเร็จ!');
@@ -664,8 +923,21 @@ async function saveProduct(e) {
     } catch (error) {
         console.error('Save product error:', error);
         alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    } finally {
+        resetSaveButton();
     }
 }
+
+function resetSaveButton() {
+    const saveText = document.getElementById('saveProductText');
+    const saveLoading = document.getElementById('saveProductLoading');
+    const saveBtn = document.getElementById('saveProductBtn');
+
+    if (saveText) saveText.classList.remove('d-none');
+    if (saveLoading) saveLoading.classList.add('d-none');
+    if (saveBtn) saveBtn.disabled = false;
+}
+
 
 async function editProduct(id) {
     const token = localStorage.getItem('authToken');

@@ -5,40 +5,58 @@ document.addEventListener('DOMContentLoaded', function () {
   // Update navbar auth state
   updateNavbarAuthState();
 
-  // Check if cookie-consent.js is already loaded
-  if (!document.querySelector('script[src*="cookie-consent.js"]')) {
-    // Add privacy banner at the bottom of all pages
-    createPrivacyBanner();
-
-    // Dynamically load CSS
-    if (!document.querySelector('link[href*="cookie-consent.css"]')) {
-      const cookieCSS = document.createElement('link');
-      cookieCSS.rel = 'stylesheet';
-      cookieCSS.href = '/assets/css/cookie-consent.css';
-      document.head.appendChild(cookieCSS);
-    }
-
-    // Dynamically load JS
-    const cookieJS = document.createElement('script');
-    cookieJS.src = '/assets/js/cookie-consent.js';
-    document.body.appendChild(cookieJS);
-  }
-
   // Set up footer functionality
   setupFooterFunctionality();
 });
+/**
+ * Get cookie value by name
+ */
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+}
 
 /**
  * Update navbar to show login or account button based on auth state
  */
-function updateNavbarAuthState() {
-  const token = localStorage.getItem('token') || localStorage.getItem('liff_token');
+async function updateNavbarAuthState() {
+  // Try localStorage first, then cookie
+  let token = localStorage.getItem('token') || localStorage.getItem('liff_token') || getCookie('token');
   const userData = localStorage.getItem('user') || localStorage.getItem('liff_user');
 
   // Get navbar elements
   const navLoginBtn = document.getElementById('navLoginBtn');
   const navAccountBtn = document.getElementById('navAccountBtn');
   const navAccountName = document.getElementById('navAccountName');
+
+  // If we have token but no user data (Safari Private Mode), try to get from API
+  if (token && !userData) {
+    try {
+      const response = await fetch('/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.user) {
+          // Update navbar
+          if (navLoginBtn) navLoginBtn.classList.add('d-none');
+          if (navAccountBtn) navAccountBtn.classList.remove('d-none');
+
+          if (navAccountName) {
+            const displayName = data.user.lineProfile?.displayName ||
+              data.user.displayName ||
+              data.user.firstName || 'บัญชี';
+            navAccountName.textContent = displayName;
+          }
+          return;
+        }
+      }
+    } catch (e) {
+      console.log('Auth check via API failed');
+    }
+  }
 
   if (token && userData) {
     // User is logged in
