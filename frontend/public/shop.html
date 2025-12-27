@@ -46,9 +46,31 @@
                     <li class="nav-item"><a class="nav-link" href="projects.html">การออกงาน</a></li>
                     <li class="nav-item"><a class="nav-link" href="contacts.html">ติดต่อเรา</a></li>
                 </ul>
-                <a class="btn btn-primary shadow" role="button" href="/api/shop/cart">
-                    <i class="fa fa-shopping-cart me-2"></i>ตระกร้าสินค้า
-                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <a class="btn btn-primary shadow" role="button" href="cart.html">
+                        <i class="fa fa-shopping-cart me-1"></i>ตระกร้า
+                    </a>
+                    <a href="login.html" class="btn btn-outline-primary" id="navLoginBtn">
+                        <i class="fa fa-user me-1"></i>เข้าสู่ระบบ
+                    </a>
+                    <div class="dropdown d-none" id="navAccountBtn">
+                        <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button"
+                            data-bs-toggle="dropdown">
+                            <i class="fa fa-user me-1"></i><span id="navAccountName">บัญชี</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="account.html"><i
+                                        class="fa fa-user-circle me-2"></i>ข้อมูลบัญชี</a></li>
+                            <li><a class="dropdown-item" href="account.html#orders"><i
+                                        class="fa fa-shopping-bag me-2"></i>คำสั่งซื้อ</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="#" id="logoutBtn"><i
+                                        class="fa fa-sign-out me-2"></i>ออกจากระบบ</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>

@@ -1,12 +1,15 @@
 // Common.js - Shared functionality across all pages
 
 // Load cookie consent
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+  // Update navbar auth state
+  updateNavbarAuthState();
+
   // Check if cookie-consent.js is already loaded
   if (!document.querySelector('script[src*="cookie-consent.js"]')) {
     // Add privacy banner at the bottom of all pages
     createPrivacyBanner();
-    
+
     // Dynamically load CSS
     if (!document.querySelector('link[href*="cookie-consent.css"]')) {
       const cookieCSS = document.createElement('link');
@@ -14,23 +17,83 @@ document.addEventListener('DOMContentLoaded', function() {
       cookieCSS.href = '/assets/css/cookie-consent.css';
       document.head.appendChild(cookieCSS);
     }
-    
+
     // Dynamically load JS
     const cookieJS = document.createElement('script');
     cookieJS.src = '/assets/js/cookie-consent.js';
     document.body.appendChild(cookieJS);
   }
-  
+
   // Set up footer functionality
   setupFooterFunctionality();
 });
+
+/**
+ * Update navbar to show login or account button based on auth state
+ */
+function updateNavbarAuthState() {
+  const token = localStorage.getItem('token') || localStorage.getItem('liff_token');
+  const userData = localStorage.getItem('user') || localStorage.getItem('liff_user');
+
+  // Get navbar elements
+  const navLoginBtn = document.getElementById('navLoginBtn');
+  const navAccountBtn = document.getElementById('navAccountBtn');
+  const navAccountName = document.getElementById('navAccountName');
+
+  if (token && userData) {
+    // User is logged in
+    if (navLoginBtn) navLoginBtn.classList.add('d-none');
+    if (navAccountBtn) navAccountBtn.classList.remove('d-none');
+
+    // Update account name if available
+    if (navAccountName) {
+      try {
+        const user = JSON.parse(userData);
+        navAccountName.textContent = user.displayName || user.firstName || 'บัญชี';
+      } catch (e) {
+        navAccountName.textContent = 'บัญชี';
+      }
+    }
+  } else {
+    // User is not logged in
+    if (navLoginBtn) navLoginBtn.classList.remove('d-none');
+    if (navAccountBtn) navAccountBtn.classList.add('d-none');
+  }
+
+  // Setup logout button handler
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      handleLogout();
+    });
+  }
+}
+
+/**
+ * Handle user logout
+ */
+function handleLogout() {
+  // Clear all auth tokens
+  localStorage.removeItem('token');
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('liff_token');
+  localStorage.removeItem('user');
+  localStorage.removeItem('liff_user');
+
+  // Clear auth cookie
+  document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+
+  // Redirect to home page
+  window.location.href = '/index.html';
+}
 
 // Setup footer functionality
 function setupFooterFunctionality() {
   // Newsletter signup form
   const newsletterForm = document.querySelector('footer form');
   if (newsletterForm) {
-    newsletterForm.addEventListener('submit', function(e) {
+    newsletterForm.addEventListener('submit', function (e) {
       e.preventDefault();
       const emailInput = this.querySelector('input[type="email"]');
       if (emailInput && emailInput.value.trim() !== '') {
@@ -38,16 +101,16 @@ function setupFooterFunctionality() {
         const successMessage = document.createElement('div');
         successMessage.className = 'alert alert-success mt-2';
         successMessage.textContent = 'ขอบคุณที่ลงทะเบียนรับข่าวสาร!';
-        
+
         // Clear the input
         emailInput.value = '';
-        
+
         // Add the message
         if (this.querySelector('.alert')) {
           this.querySelector('.alert').remove();
         }
         this.appendChild(successMessage);
-        
+
         // Remove the message after 3 seconds
         setTimeout(() => {
           if (successMessage.parentNode) {
@@ -65,11 +128,11 @@ function createPrivacyBanner() {
   const hasConsent = document.cookie
     .split('; ')
     .find(row => row.startsWith('tanyarat_cookie_consent='));
-    
+
   if (hasConsent) {
     return; // Don't show banner if consent already given
   }
-  
+
   // Create banner element
   const banner = document.createElement('div');
   banner.className = 'privacy-banner';
@@ -81,29 +144,29 @@ function createPrivacyBanner() {
       <button class="privacy-banner-btn privacy-settings-btn">ตั้งค่าคุกกี้</button>
     </div>
   `;
-  
+
   // Insert at the end of the body
   document.body.appendChild(banner);
-  
+
   // Ensure it's visible
   setTimeout(() => {
     banner.style.display = 'flex';
   }, 1000);
-  
+
   // Add event listeners
-  banner.querySelector('.privacy-accept-btn').addEventListener('click', function() {
+  banner.querySelector('.privacy-accept-btn').addEventListener('click', function () {
     // Accept all cookies
     acceptAllCookies();
     banner.classList.add('hidden');
   });
-  
-  banner.querySelector('.privacy-settings-btn').addEventListener('click', function() {
+
+  banner.querySelector('.privacy-settings-btn').addEventListener('click', function () {
     // Open cookie settings modal when it's available
     if (window.tanyaratCookies && window.tanyaratCookies.openSettings) {
       window.tanyaratCookies.openSettings();
     } else {
       // If cookie settings not loaded yet, try again after a short delay
-      setTimeout(function() {
+      setTimeout(function () {
         if (window.tanyaratCookies && window.tanyaratCookies.openSettings) {
           window.tanyaratCookies.openSettings();
         }
@@ -118,7 +181,7 @@ function acceptAllCookies() {
   const consentDate = new Date();
   const expiryDate = new Date();
   expiryDate.setDate(expiryDate.getDate() + 365); // 1 year
-  
+
   const cookieValue = {
     consent: true,
     timestamp: consentDate.toISOString(),
@@ -130,9 +193,9 @@ function acceptAllCookies() {
       marketing: true
     }
   };
-  
+
   document.cookie = `tanyarat_cookie_consent=${JSON.stringify(cookieValue)};expires=${expiryDate.toUTCString()};path=/;SameSite=Lax`;
-  
+
   // Example cookie functionality implementations
   enableGoogleAnalytics();
   enableFacebookPixel();
@@ -143,7 +206,7 @@ function acceptAllCookies() {
 function enableGoogleAnalytics() {
   // This is where you would actually implement Google Analytics
   console.log('Google Analytics enabled');
-  
+
   // Example code (commented out as it's just for demonstration)
   // window.dataLayer = window.dataLayer || [];
   // function gtag(){dataLayer.push(arguments);}
@@ -154,7 +217,7 @@ function enableGoogleAnalytics() {
 function enableFacebookPixel() {
   // This is where you would actually implement Facebook Pixel
   console.log('Facebook Pixel enabled');
-  
+
   // Example code (commented out as it's just for demonstration)
   // !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   // n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -168,13 +231,13 @@ function enableFacebookPixel() {
 function saveUserPreferences() {
   // This would save user preferences like dark mode, language, etc.
   console.log('User preferences saved');
-  
+
   // Example implementation
   const userPrefs = {
     theme: 'light',
     fontSize: 'medium',
     language: 'th'
   };
-  
+
   localStorage.setItem('userPreferences', JSON.stringify(userPrefs));
 } 
